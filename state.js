@@ -6,7 +6,8 @@
 export class DeckState {
   constructor(notes = []) {
     this.notes = notes;
-    this.activeDeck = "inbox"; // 'inbox' | 'all' | カテゴリ名
+    const hasInboxNotes = notes.some(n => (!n.category || n.category.trim() === "" || n.category === "inbox") && n.status !== "archived");
+    this.activeDeck = hasInboxNotes ? "inbox" : "all";
     this.currentIndex = 0; // 0 = 最新
     this.activeHorizontalIndex = 0; // 横スワイプ（関連リンク）のインデックス
 
@@ -115,6 +116,30 @@ export class DeckState {
     const filtered = this.getFilteredNotes();
     if (index >= 0 && index < filtered.length) {
       this.currentIndex = index;
+      this.activeHorizontalIndex = 0;
+      return true;
+    }
+    return false;
+  }
+
+  // ノートIDを指定して直接ジャンプ（リンク先が別カテゴリ・デッキでも自動追従）
+  jumpToNote(noteId) {
+    const targetNote = this.notes.find(n => n.id === noteId && n.status !== "archived");
+    if (!targetNote) return false;
+
+    // 1. 現在のアクティブデッキに対象ノートが含まれているか確認
+    let filtered = this.getFilteredNotes();
+    let idx = filtered.findIndex(n => n.id === noteId);
+
+    // 2. 含まれていなければ、リンク先を表示するために「すべて」デッキに切り替える
+    if (idx === -1) {
+      this.activeDeck = "all";
+      filtered = this.getFilteredNotes();
+      idx = filtered.findIndex(n => n.id === noteId);
+    }
+
+    if (idx !== -1) {
+      this.currentIndex = idx;
       this.activeHorizontalIndex = 0;
       return true;
     }

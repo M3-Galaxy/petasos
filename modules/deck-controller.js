@@ -687,14 +687,17 @@ export class DeckController {
         return;
       }
     } else if (direction === "right") {
-      // 関連メモへジャンプ
+      // 関連メモへジャンプ（別カテゴリのメモでも確実に追従）
       const current = this.app.state.getCurrentNote();
       if (current && current.links && current.links.length > 0) {
         const targetId = current.links[0];
-        const targetIndex = this.app.state.notes.findIndex(n => n.id === targetId);
-        if (targetIndex !== -1) {
-          this.app.state.jumpTo(targetIndex);
+        if (!this.app.state.jumpToNote(targetId)) {
+          this.resetCardTransforms();
+          return;
         }
+      } else {
+        this.resetCardTransforms();
+        return;
       }
     }
 

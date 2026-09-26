@@ -93,12 +93,10 @@ export class NoteModal {
         const chip = e.target.closest(".link-chip");
         if (chip && chip.dataset.targetId) {
           const targetId = chip.dataset.targetId;
-          const targetIdx = this.app.state.notes.findIndex((n) => n.id === targetId);
-          if (targetIdx !== -1) {
-            this.app.state.jumpTo(targetIdx);
+          if (this.app.state.jumpToNote(targetId)) {
             this.app.renderCards();
             this.app.updateStatus();
-            this.openReader();
+            this.openReader(); // 新しいメモで閲覧モード再表示
           }
         }
       });

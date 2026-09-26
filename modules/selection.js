@@ -571,10 +571,7 @@ export class SelectionManager {
           this.app.state.notes = freshNotes;
 
           if (this.lastArchivedNoteIds.length > 0) {
-            const restoredIndex = this.app.state.notes.findIndex((n) => n.id === this.lastArchivedNoteIds[0]);
-            if (restoredIndex !== -1) {
-              this.app.state.jumpTo(restoredIndex);
-            }
+            this.app.state.jumpToNote(this.lastArchivedNoteIds[0]);
           }
 
           this.app.renderCards();
