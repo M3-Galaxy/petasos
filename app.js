@@ -122,16 +122,6 @@ class PhysicalCardDeckApp {
         this.triggerCardSwitch("left");
       }
     });
-
-    // 📱 画面リサイズやキーボード・バー開閉時にスクロール位置を原点に維持（せり上がり防止）
-    window.addEventListener("resize", () => {
-      window.scrollTo(0, 0);
-    });
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener("resize", () => {
-        window.scrollTo(0, 0);
-      });
-    }
   }
 
   // ---------------------------------------------------------------------------
@@ -213,22 +203,7 @@ class PhysicalCardDeckApp {
   installPwa() { return this.pwa.installPwa(); }
 }
 
-// 📱 モバイルブラウザのスクロール復元による下端せり上がりバグを防止
-if ("scrollRestoration" in history) {
-  history.scrollRestoration = "manual";
-}
-window.scrollTo(0, 0);
-
-// アプリケーション起動（DOMContentLoaded取りこぼし防止の堅牢な設計）
-function bootstrap() {
-  window.scrollTo(0, 0);
-  if (!window.app) {
-    window.app = new PhysicalCardDeckApp();
-  }
-}
-
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", bootstrap);
-} else {
-  bootstrap();
-}
+// アプリケーション起動
+window.addEventListener("DOMContentLoaded", () => {
+  window.app = new PhysicalCardDeckApp();
+});
