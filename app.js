@@ -219,8 +219,16 @@ if ("scrollRestoration" in history) {
 }
 window.scrollTo(0, 0);
 
-// アプリケーション起動
-window.addEventListener("DOMContentLoaded", () => {
+// アプリケーション起動（DOMContentLoaded取りこぼし防止の堅牢な設計）
+function bootstrap() {
   window.scrollTo(0, 0);
-  window.app = new PhysicalCardDeckApp();
-});
+  if (!window.app) {
+    window.app = new PhysicalCardDeckApp();
+  }
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", bootstrap);
+} else {
+  bootstrap();
+}

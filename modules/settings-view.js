@@ -281,6 +281,7 @@ export class SettingsView {
       // 📱 SPAインメモリ即時リセット（リロードによるスクロール位置の崩れ・せり上がりを防止）
       const { DeckState } = await import("../state.js");
       this.app.state = new DeckState(SAMPLE_NOTES);
+      this.app.state.setDeck("all"); // チュートリアルカードが確実に表示されるよう「すべて」デッキを指定
 
       // モーダルや選択モードのクローズ
       this.closeSettings();
