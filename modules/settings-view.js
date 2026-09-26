@@ -277,10 +277,33 @@ export class SettingsView {
     try {
       const { SAMPLE_NOTES } = await import("../constants.js");
       await this.app.storage.clearAllData(SAMPLE_NOTES);
-      this.app.showToast("🔄 データを初期化しました。リロードします...");
-      setTimeout(() => {
-        window.location.reload();
-      }, 700);
+
+      // 📱 SPAインメモリ即時リセット（リロードによるスクロール位置の崩れ・せり上がりを防止）
+      const { DeckState } = await import("../state.js");
+      this.app.state = new DeckState(SAMPLE_NOTES);
+
+      // モーダルや選択モードのクローズ
+      this.closeSettings();
+      if (this.app.state.isSelectMode && this.app.exitSelectMode) {
+        this.app.exitSelectMode();
+      }
+      if (this.app.state.isGridView && this.app.closeGridSheet) {
+        this.app.closeGridSheet();
+      }
+
+      // デッキ・ステータス・同期表示の再描画
+      this.app.renderCards();
+      this.app.updateStatus();
+      if (this.app.sync) {
+        await this.app.sync.updateSyncIndicator("synced");
+      }
+
+      // スクロール位置を確実に原点へリセット
+      window.scrollTo(0, 0);
+      if (document.documentElement) document.documentElement.scrollTop = 0;
+      if (document.body) document.body.scrollTop = 0;
+
+      this.app.showToast("✨ データを初期チュートリアル状態にリセットしました");
     } catch (err) {
       console.error("Reset error:", err);
       alert("初期化に失敗しました: " + err.message);
