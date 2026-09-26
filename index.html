@@ -226,23 +226,30 @@
         <div class="modal-header">
           <!-- 閲覧モード用ボタン群 -->
           <div id="header-view-actions" class="header-action-group">
-            <button id="btn-close-modal" class="modal-btn btn-ghost" title="デッキに戻る">
+            <button id="btn-close-modal" class="modal-btn btn-ghost modal-btn-icon" title="デッキに戻る" aria-label="デッキに戻る">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                 stroke-linecap="round" stroke-linejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
               </svg>
-              <span>閉じる</span>
             </button>
             <div class="modal-mode-badge view-badge">閲覧モード</div>
-            <button id="btn-switch-to-edit" class="modal-btn btn-primary" title="このメモを編集する">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                stroke-linecap="round" stroke-linejoin="round">
-                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-              </svg>
-              <span>編集する</span>
-            </button>
+            <div class="header-right-actions">
+              <button id="btn-copy-note" class="modal-btn btn-ghost modal-btn-icon" title="メモの内容をコピー" aria-label="メモの内容をコピー">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+              </button>
+              <button id="btn-switch-to-edit" class="modal-btn btn-primary modal-btn-icon" title="このメモを編集する" aria-label="このメモを編集する">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+              </button>
+            </div>
           </div>
 
           <!-- 編集モード用ボタン群 -->

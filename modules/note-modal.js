@@ -29,6 +29,7 @@ export class NoteModal {
     this.viewLinksSection = document.getElementById("view-links-section");
     this.viewLinksChips = document.getElementById("view-links-chips");
     this.btnCloseModal = document.getElementById("btn-close-modal");
+    this.btnCopyNote = document.getElementById("btn-copy-note");
     this.btnSwitchToEdit = document.getElementById("btn-switch-to-edit");
 
     // 編集パネルDOM
@@ -50,6 +51,9 @@ export class NoteModal {
     // 📖 モーダル内アクション
     if (this.btnCloseModal) {
       this.btnCloseModal.addEventListener("click", () => this.closeModal());
+    }
+    if (this.btnCopyNote) {
+      this.btnCopyNote.addEventListener("click", () => this.copyNoteContent());
     }
     if (this.btnSwitchToEdit) {
       this.btnSwitchToEdit.addEventListener("click", () => this.switchToEdit());
@@ -78,6 +82,12 @@ export class NoteModal {
     // 閲覧パネル内のインタラクティブ操作（ToDoトグル & リンク遷移）
     if (this.viewContent) {
       this.viewContent.addEventListener("click", (e) => {
+        // テキスト選択（ドラッグ）直後のクリックイベントならトグルを抑制
+        const selection = window.getSelection();
+        if (selection && selection.toString().trim().length > 0) {
+          return;
+        }
+
         const todoItem = e.target.closest(".todo-item");
         if (todoItem) {
           const lineIdx = parseInt(todoItem.dataset.lineIndex, 10);
@@ -209,6 +219,68 @@ export class NoteModal {
 
     this.openReader();
     this.app.renderCards();
+  }
+
+  // ---------------------------------------------------------------------------
+  // 📋 閲覧中のメモの内容をクリップボードにコピー
+  // ---------------------------------------------------------------------------
+  async copyNoteContent() {
+    const note = this.app.state.getCurrentNote();
+    if (!note) return;
+
+    let textToCopy = "";
+    if (note.title && note.content) {
+      textToCopy = `${note.title}\n\n${note.content}`;
+    } else {
+      textToCopy = note.title || note.content || "";
+    }
+
+    if (!textToCopy.trim()) {
+      this.app.showToast("コピーする内容がありません");
+      return;
+    }
+
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(textToCopy);
+      } else {
+        // フォールバックコピー
+        const textarea = document.createElement("textarea");
+        textarea.value = textToCopy;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+      }
+
+      this.showCopyFeedback();
+      this.app.showToast("📋 メモの内容をコピーしました");
+    } catch (err) {
+      console.error("Copy failed:", err);
+      this.app.showToast("⚠️ コピーに失敗しました");
+    }
+  }
+
+  showCopyFeedback() {
+    if (!this.btnCopyNote) return;
+
+    const originalHTML = this.btnCopyNote.innerHTML;
+    this.btnCopyNote.classList.add("btn-copied");
+    this.btnCopyNote.innerHTML = `
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+        stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+    `;
+
+    setTimeout(() => {
+      if (this.btnCopyNote) {
+        this.btnCopyNote.classList.remove("btn-copied");
+        this.btnCopyNote.innerHTML = originalHTML;
+      }
+    }, 1500);
   }
 
   // ---------------------------------------------------------------------------

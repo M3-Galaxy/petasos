@@ -3,7 +3,7 @@
  * キャッシュバージョン管理により、オフライン動作とスムーズな更新を実現
  */
 
-const CACHE_NAME = "petasos-v1.1.4";
+const CACHE_NAME = "petasos-v1.1.6";
 
 // アプリの動作に必要な静的コアファイル群
 const CORE_ASSETS = [
