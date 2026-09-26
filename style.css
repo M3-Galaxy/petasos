@@ -2092,6 +2092,18 @@ body {
   background: rgba(245, 158, 11, 0.1);
 }
 
+.btn-action-pwa {
+  border-color: rgba(54, 139, 153, 0.4);
+  color: var(--accent-cyan);
+  background: var(--accent-cyan-light);
+}
+
+.btn-action-pwa:hover {
+  border-color: var(--accent-cyan);
+  background: rgba(54, 139, 153, 0.2);
+  box-shadow: 0 0 12px var(--accent-cyan-glow);
+}
+
 /* GitHub連携ボックス */
 .github-config-box {
   display: flex;

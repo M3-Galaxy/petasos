@@ -4,7 +4,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Petasos v2 - Physical Card Deck Prototype</title>
+  <title>Petasos - 思考をカードのように扱うメモ</title>
+  <meta name="description" content="身体性を伴うカードデッキと静かな思考の星空。紙とデジタルの美しい棲み分けを目指すローカルファーストメモ。">
+  <!-- PWA & Mobile Meta Tags -->
+  <meta name="theme-color" content="#161b22">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Petasos">
+  <!-- PWA Manifest & Icons -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="64x64" href="favicon.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -471,6 +481,14 @@
                     <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
                   </svg>
                   <span>キューをクリア</span>
+                </button>
+                <button id="btn-install-pwa" class="settings-action-btn btn-action-pwa" style="display: none;" title="ホーム画面またはPCにアプリをインストール">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                    <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                  </svg>
+                  <span>アプリをインストール</span>
                 </button>
               </div>
             </div>
