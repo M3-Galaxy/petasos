@@ -224,7 +224,7 @@ html[data-theme="mauve"] .tool-btn:hover {
   box-shadow: 0 0 14px var(--accent-cyan-glow);
 }
 
-/* 思考のタイル一覧モーダル（選択モード一覧）のカード配色 */
+/* 思考のカード一覧モーダル（選択モード一覧）のカード配色 */
 html[data-theme="mauve"] .grid-tile {
   background: #2a2632;
   border: 1px solid rgba(255, 255, 255, 0.09);
@@ -599,6 +599,7 @@ body {
     opacity: 0;
     transform: translateX(-50%) translateY(-6px) scale(0.97);
   }
+
   to {
     opacity: 1;
     transform: translateX(-50%) translateY(0) scale(1);
@@ -803,6 +804,7 @@ body {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -1116,7 +1118,7 @@ body {
   transform: translateY(0);
 }
 
-/* 🚀 Mさんのロケットボタン */
+/* 🚀 ロケットボタン */
 .fab-group {
   display: flex;
   align-items: center;
@@ -2502,7 +2504,7 @@ body {
 }
 
 /* --------------------------------------------------------------------------
-   ⊞ 思考のタイル一覧シート（案1-C ハイブリッド）
+   ⊞ 思考のカード一覧シート（案1-C ハイブリッド）
    -------------------------------------------------------------------------- */
 .grid-view-sheet {
   position: fixed;
@@ -2599,14 +2601,14 @@ body {
   /* アクションバー分の余白 */
 }
 
-/* タイルグリッドステージ */
+/* カードグリッドステージ */
 .grid-tiles-stage {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 16px;
 }
 
-/* 個別タイル */
+/* 個別カード */
 .grid-tile {
   position: relative;
   display: flex;
@@ -2918,8 +2920,8 @@ body {
 }
 
 .about-hermes-emblem {
-  width: 96px;
-  height: 96px;
+  width: 256px;
+  height: 256px;
   background-color: var(--text-main);
   -webkit-mask-image: url('./hermes-lineart.png');
   -webkit-mask-size: contain;
@@ -2965,15 +2967,18 @@ body {
 
 .about-action-section {
   width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 .about-install-btn {
-  width: 100%;
-  display: flex;
+  width: auto;
+  display: inline-flex;
+  margin: 0 auto;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 12px 18px;
+  padding: 10px 22px;
   border-radius: 12px;
   background: var(--accent-cyan);
   color: var(--accent-contrast, #ffffff);

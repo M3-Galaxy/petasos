@@ -190,7 +190,7 @@
           </button>
           <div class="action-bar-divider"></div>
           <!-- ⊞ グリッド一覧表示切り替えボタン（ハイブリッド方式） -->
-          <button id="btn-toggle-grid" class="action-bar-btn btn-grid-toggle" title="タイル一覧を表示">
+          <button id="btn-toggle-grid" class="action-bar-btn btn-grid-toggle" title="カード一覧を表示">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
               stroke-linecap="round" stroke-linejoin="round">
               <rect x="3" y="3" width="7" height="7"></rect>
@@ -205,7 +205,7 @@
 
       <!-- 右下アクション群 -->
       <div class="fab-group">
-        <!-- 🚀 Mさんのロケットボタン（ランダムワープ） -->
+        <!-- 🚀 ロケットボタン（ランダムワープ） -->
         <button id="btn-rocket-warp" class="rocket-fab" title="思考の宇宙をワープする（ランダム発掘）">
           <span class="rocket-icon">🚀</span>
           <span class="rocket-trail"></span>
@@ -498,7 +498,8 @@
               </div>
               <div class="github-config-box">
                 <div class="config-field">
-                  <label for="input-github-token" class="config-label">Personal Access Token (fine-grained / classic)</label>
+                  <label for="input-github-token" class="config-label">Personal Access Token (fine-grained /
+                    classic)</label>
                   <input type="password" id="input-github-token" class="config-input"
                     placeholder="github_pat_... または ghp_..." autocomplete="off">
                 </div>
@@ -554,21 +555,27 @@
 
             <!-- アプリをインストール（PWA）セクション -->
             <div class="about-action-section">
-              <button id="btn-install-pwa" class="about-install-btn" style="display: none;" title="ホーム画面またはPCにアプリをインストール">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <button id="btn-install-pwa" class="about-install-btn" style="display: none;"
+                title="ホーム画面またはPCにアプリをインストール">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
                   <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
                   <line x1="12" y1="18" x2="12.01" y2="18"></line>
                 </svg>
-                <span>アプリをホーム画面 / PCにインストール</span>
+                <span>アプリをインストール</span>
               </button>
             </div>
 
             <!-- リンク ＆ クレジット -->
             <div class="about-links-section">
-              <a href="https://github.com/M3-Galaxy/petasos" target="_blank" rel="noopener noreferrer" class="about-link-item">
+              <a href="https://github.com/M3-Galaxy/petasos" target="_blank" rel="noopener noreferrer"
+                class="about-link-item">
                 <div class="about-link-info">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path
+                      d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+                    </path>
                   </svg>
                   <span class="about-link-title">GitHub リポジトリ</span>
                 </div>
@@ -585,7 +592,7 @@
       </div>
     </div>
 
-    <!-- ⊞ 思考のタイル一覧シート（案1-C ハイブリッド俯瞰シート） -->
+    <!-- ⊞ 思考のカード一覧シート（案1-C ハイブリッド俯瞰シート） -->
     <div id="grid-view-sheet" class="grid-view-sheet">
       <div class="grid-sheet-card">
         <!-- シートヘッダー -->
@@ -593,7 +600,7 @@
           <div class="grid-sheet-title-group">
             <span class="sheet-title-icon">⊞</span>
             <div class="sheet-title-text-wrap">
-              <h2 class="grid-sheet-title">思考のタイル一覧</h2>
+              <h2 class="grid-sheet-title">思考のカード一覧</h2>
               <span class="grid-sheet-subtitle">タップして複数選択 ⟷ 下部のアクションで一括整理</span>
             </div>
             <span id="grid-selected-count-badge" class="grid-count-badge">0 件選択</span>

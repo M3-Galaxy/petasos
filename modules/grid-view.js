@@ -1,6 +1,6 @@
 /**
  * Petasos v2 - Grid View Module
- * 思考のタイル一覧シート（案1-C ハイブリッド俯瞰シート）
+ * 思考のカード一覧シート（案1-C ハイブリッド俯瞰シート）
  */
 
 import { escapeHtml } from "../utils.js";

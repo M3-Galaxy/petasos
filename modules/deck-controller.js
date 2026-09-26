@@ -81,7 +81,7 @@ export class DeckController {
       }, { passive: false });
     }
 
-    // 🚀 ロケットボタン（Mさんのワープ発掘）
+    // 🚀 ロケットボタン（ワープ発掘）
     if (this.btnRocket) {
       this.btnRocket.addEventListener("click", () => this.triggerRocketWarp());
     }
@@ -248,7 +248,7 @@ export class DeckController {
     }
 
     const linkedNotes = note.links ? note.links.length : 0;
-    const linkIndicatorHTML = linkedNotes > 0 
+    const linkIndicatorHTML = linkedNotes > 0
       ? `<div class="link-indicator"><span style="font-size: 13px;">🔗</span> 結ばれている星 (${linkedNotes})</div>`
       : `<div></div>`;
 
@@ -455,7 +455,7 @@ export class DeckController {
     const noteModal = document.getElementById("note-modal");
     const settingsModal = document.getElementById("settings-modal");
     const isModalActive = (noteModal && noteModal.classList.contains("is-active")) ||
-                          (settingsModal && settingsModal.classList.contains("is-active"));
+      (settingsModal && settingsModal.classList.contains("is-active"));
 
     const centerCard = e.target.closest(".note-card.card-center");
     if (centerCard && !isModalActive) {
@@ -470,7 +470,7 @@ export class DeckController {
           this.longPressCard = null;
         }
         if (navigator.vibrate) {
-          try { navigator.vibrate(40); } catch (_) {}
+          try { navigator.vibrate(40); } catch (_) { }
         }
         const noteId = centerCard.dataset.id;
         if (!this.app.state.isSelectMode) {
@@ -700,7 +700,7 @@ export class DeckController {
   }
 
   // ---------------------------------------------------------------------------
-  // 🚀 Mさんのロケットボタン（思考の全宇宙を巡るランダム発掘ワープ演出）
+  // 🚀 ロケットボタン（思考の全宇宙を巡るランダム発掘ワープ演出）
   // ---------------------------------------------------------------------------
   triggerRocketWarp() {
     if (this.isWarping) return;
@@ -743,7 +743,7 @@ export class DeckController {
 
       if (shuffleCount >= 5) {
         clearInterval(shuffleInterval);
-        
+
         // 最終目的地に着地
         setTimeout(() => {
           this.app.state.jumpTo(targetIndex);
