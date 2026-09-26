@@ -3,7 +3,7 @@
  * キャッシュバージョン管理により、オフライン動作とスムーズな更新を実現
  */
 
-const CACHE_NAME = "petasos-v1.0.0";
+const CACHE_NAME = "petasos-v1.0.1";
 
 // アプリの動作に必要な静的コアファイル群
 const CORE_ASSETS = [
@@ -22,7 +22,8 @@ const CORE_ASSETS = [
   "./icon-512.png",
   "./icon-maskable-512.png",
   "./apple-touch-icon.png",
-  "./favicon.png"
+  "./favicon.png",
+  "./hermes-lineart.png"
 ];
 
 // -----------------------------------------------------------------------------

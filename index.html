@@ -347,6 +347,9 @@
           <button class="settings-tab-btn" data-tab="github">
             <span>GitHub連携</span>
           </button>
+          <button class="settings-tab-btn" data-tab="about">
+            <span>About</span>
+          </button>
         </div>
 
         <!-- モーダルボディ（タブコンテナ） -->
@@ -482,14 +485,6 @@
                   </svg>
                   <span>キューをクリア</span>
                 </button>
-                <button id="btn-install-pwa" class="settings-action-btn btn-action-pwa" style="display: none;" title="ホーム画面またはPCにアプリをインストール">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
-                    <line x1="12" y1="18" x2="12.01" y2="18"></line>
-                  </svg>
-                  <span>アプリをインストール</span>
-                </button>
               </div>
             </div>
           </div>
@@ -541,6 +536,48 @@
                   <span class="hint-icon">🔒</span>
                   <span>トークンはお手元のブラウザ内（localStorage）にのみ安全に保管されます。通信はブラウザからGitHub公式APIへのみ直接行われます。</span>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ④ About タブ -->
+          <div id="tab-pane-about" class="settings-tab-pane">
+            <div class="about-hero-section">
+              <!-- テーマに連動して色が変わるヘルメス透過線画エンブレム -->
+              <div class="about-emblem-wrap">
+                <div class="about-hermes-emblem" aria-label="Petasos Emblem"></div>
+              </div>
+              <h3 class="about-app-title">Petasos</h3>
+              <p class="about-app-subtitle">身体性を伴うカードデッキと、静かな思考の星空</p>
+              <span class="about-version-badge">v2.0.0 (PWA & BYOS)</span>
+            </div>
+
+            <!-- アプリをインストール（PWA）セクション -->
+            <div class="about-action-section">
+              <button id="btn-install-pwa" class="about-install-btn" style="display: none;" title="ホーム画面またはPCにアプリをインストール">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                  <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                </svg>
+                <span>アプリをホーム画面 / PCにインストール</span>
+              </button>
+            </div>
+
+            <!-- リンク ＆ クレジット -->
+            <div class="about-links-section">
+              <a href="https://github.com/M3-Galaxy/petasos" target="_blank" rel="noopener noreferrer" class="about-link-item">
+                <div class="about-link-info">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                  </svg>
+                  <span class="about-link-title">GitHub リポジトリ</span>
+                </div>
+                <span class="about-link-arrow">↗</span>
+              </a>
+
+              <div class="about-footer-meta">
+                <span>Released under MIT License</span>
+                <span>© 2026 M3-Galaxy</span>
               </div>
             </div>
           </div>
