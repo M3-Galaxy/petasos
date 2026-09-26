@@ -21,8 +21,10 @@ export class DeckController {
     this.deckPickerList = document.getElementById("deck-picker-list");
     this.indexBadge = document.getElementById("current-index-badge");
     this.timeBadge = document.getElementById("time-distance-badge");
-    this.btnReturnLatest = document.getElementById("btn-return-latest");
     this.btnRocket = document.getElementById("btn-rocket-warp");
+    this.rocketMenuPopover = document.getElementById("rocket-menu-popover");
+    this.btnMenuWarp = document.getElementById("btn-menu-warp");
+    this.btnMenuLatest = document.getElementById("btn-menu-latest");
     this.gestureHint = document.getElementById("gesture-hint");
     this.warpOverlay = document.getElementById("warp-overlay");
 
@@ -81,18 +83,29 @@ export class DeckController {
       }, { passive: false });
     }
 
-    // 🚀 ロケットボタン（ワープ発掘）
+    // 🚀 ロケットボタン（タイムジャンプメニュー展開）
     if (this.btnRocket) {
-      this.btnRocket.addEventListener("click", () => this.triggerRocketWarp());
+      this.btnRocket.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.toggleRocketMenu();
+      });
     }
 
-    // 最新に戻るボタン
-    if (this.btnReturnLatest) {
-      this.btnReturnLatest.addEventListener("click", () => {
-        if (this.isWarping) return;
-        this.app.state.jumpTo(0);
-        this.renderCards();
-        this.updateStatus();
+    // ポップアップ内：ランダムワープ
+    if (this.btnMenuWarp) {
+      this.btnMenuWarp.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.closeRocketMenu();
+        this.triggerRocketWarp();
+      });
+    }
+
+    // ポップアップ内：最新へ戻る
+    if (this.btnMenuLatest) {
+      this.btnMenuLatest.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.closeRocketMenu();
+        this.jumpToLatest();
       });
     }
 
@@ -110,11 +123,18 @@ export class DeckController {
       });
     }
 
-    // デッキピッカー外側クリックで閉じる
+    // 外側クリックでポップオーバーを閉じる
     document.addEventListener("pointerdown", (e) => {
+      // デッキピッカー外側クリック
       if (this.deckPickerPopover && this.deckPickerPopover.style.display !== "none") {
         if (!this.deckPickerPopover.contains(e.target) && !this.deckStatus.contains(e.target)) {
           this.closeDeckPicker();
+        }
+      }
+      // ロケットメニュー外側クリック
+      if (this.rocketMenuPopover && this.rocketMenuPopover.style.display !== "none") {
+        if (!this.rocketMenuPopover.contains(e.target) && !this.btnRocket.contains(e.target)) {
+          this.closeRocketMenu();
         }
       }
     });
@@ -216,6 +236,57 @@ export class DeckController {
     this.closeDeckPicker();
     this.renderCards();
     this.updateStatus();
+  }
+
+  // ---------------------------------------------------------------------------
+  // 🚀 タイムジャンプ（ロケット）ポップオーバーメニュー制御
+  // ---------------------------------------------------------------------------
+  jumpToLatest() {
+    if (this.isWarping) return;
+    this.app.state.jumpTo(0);
+    this.renderCards();
+    this.updateStatus();
+    if (this.centerCard) {
+      this.centerCard.style.animation = "pulse-dot 0.4s ease-out";
+    }
+  }
+
+  toggleRocketMenu() {
+    if (!this.rocketMenuPopover) return;
+    if (this.rocketMenuPopover.style.display === "none" || !this.rocketMenuPopover.style.display) {
+      this.openRocketMenu();
+    } else {
+      this.closeRocketMenu();
+    }
+  }
+
+  openRocketMenu() {
+    if (!this.rocketMenuPopover) return;
+    this.updateRocketMenuState();
+    this.rocketMenuPopover.style.display = "flex";
+    if (this.btnRocket) {
+      this.btnRocket.classList.add("is-menu-open");
+    }
+  }
+
+  closeRocketMenu() {
+    if (this.rocketMenuPopover) {
+      this.rocketMenuPopover.style.display = "none";
+    }
+    if (this.btnRocket) {
+      this.btnRocket.classList.remove("is-menu-open");
+    }
+  }
+
+  updateRocketMenuState() {
+    if (this.btnMenuLatest) {
+      const isLatest = this.app.state.currentIndex === 0;
+      this.btnMenuLatest.disabled = isLatest;
+      const desc = this.btnMenuLatest.querySelector(".rocket-menu-item-desc");
+      if (desc) {
+        desc.textContent = isLatest ? "現在表示中" : "時間の最前線へ";
+      }
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -415,10 +486,7 @@ export class DeckController {
         this.timeBadge.textContent = "空っぽ";
         this.timeBadge.className = "time-badge is-latest";
       }
-      if (this.btnReturnLatest) {
-        this.btnReturnLatest.style.opacity = "0";
-        this.btnReturnLatest.style.pointerEvents = "none";
-      }
+      this.updateRocketMenuState();
       return;
     }
 
@@ -433,19 +501,13 @@ export class DeckController {
       if (this.app.state.currentIndex === 0) {
         this.timeBadge.textContent = "最新";
         this.timeBadge.className = "time-badge is-latest";
-        if (this.btnReturnLatest) {
-          this.btnReturnLatest.style.opacity = "0";
-          this.btnReturnLatest.style.pointerEvents = "none";
-        }
       } else {
         this.timeBadge.textContent = currentNote ? currentNote.timeAgo : "";
         this.timeBadge.className = "time-badge is-past";
-        if (this.btnReturnLatest) {
-          this.btnReturnLatest.style.opacity = "1";
-          this.btnReturnLatest.style.pointerEvents = "auto";
-        }
       }
     }
+
+    this.updateRocketMenuState();
   }
 
   // ---------------------------------------------------------------------------
@@ -557,12 +619,15 @@ export class DeckController {
         this.centerCard.style.transform = `translate3d(0, ${effectiveDy}px, 0) scale(${1 - Math.abs(effectiveDy) * 0.0003})`;
       }
 
+      const baseY = window.innerWidth <= 600 ? 80 : 84;
+      const baseOpacity = window.innerWidth <= 600 ? 0.5 : 0.55;
+
       // 上カード（引き下げ時）
       if (this.topCard && effectiveDy > 0) {
         const progress = Math.min(effectiveDy / 300, 1);
-        const yPos = -92 + progress * 92;
+        const yPos = -baseY + progress * baseY;
         const scale = 0.92 + progress * 0.08;
-        const opacity = 0.6 + progress * 0.4;
+        const opacity = baseOpacity + progress * (1 - baseOpacity);
         this.topCard.style.transform = `translate3d(0, ${yPos}%, 0) scale(${scale})`;
         this.topCard.style.opacity = opacity;
       }
@@ -570,9 +635,9 @@ export class DeckController {
       // 下カード（引き上げ時）
       if (this.bottomCard && effectiveDy < 0) {
         const progress = Math.min(Math.abs(effectiveDy) / 300, 1);
-        const yPos = 92 - progress * 92;
+        const yPos = baseY - progress * baseY;
         const scale = 0.92 + progress * 0.08;
-        const opacity = 0.6 + progress * 0.4;
+        const opacity = baseOpacity + progress * (1 - baseOpacity);
         this.bottomCard.style.transform = `translate3d(0, ${yPos}%, 0) scale(${scale})`;
         this.bottomCard.style.opacity = opacity;
       }

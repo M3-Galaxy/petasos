@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Petasos - 思考をカードのように扱うメモ</title>
   <meta name="description" content="身体性を伴うカードデッキと静かな思考の星空。紙とデジタルの美しい棲み分けを目指すローカルファーストメモ。">
   <!-- PWA & Mobile Meta Tags -->
@@ -31,15 +31,10 @@
     <div class="ambient-glow glow-bottom"></div>
     <div class="star-dust"></div>
 
-    <!-- ヘッダー（ミニマルなピル形状ナビゲーション） -->
+    <!-- ヘッダー（ミニマルなピル形状アクションナビゲーション） -->
     <header class="app-header">
-      <!-- ① 通常ナビピル -->
-      <div id="normal-header-pill" class="header-pill">
-        <div id="deck-status" class="deck-status is-clickable" role="button" tabindex="0" title="デッキを切り替える（タップで展開）">
-          <span id="deck-name-badge" class="deck-name-badge">Inbox</span>
-          <span id="current-index-badge" class="status-badge">1 / 10</span>
-          <span id="time-distance-badge" class="time-badge">最新</span>
-        </div>
+      <!-- ① 通常ナビピル（アクションツールバー） -->
+      <div id="normal-header-pill" class="header-pill action-header-pill">
         <!-- ＋ 新規メモ作成ボタン -->
         <button id="btn-new-note" class="new-note-btn" title="新しいメモを作成する">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
@@ -102,17 +97,6 @@
           <span id="select-all-label">全選択</span>
         </button>
       </div>
-
-      <!-- ③ デッキ選択ピッカー・ポップオーバー（枚数表示タップで展開） -->
-      <div id="deck-picker-popover" class="deck-picker-popover" style="display: none;">
-        <div class="deck-picker-header">
-          <span class="deck-picker-title">思考の束を持ち替える</span>
-          <span class="deck-picker-hint">クリックで切り替え</span>
-        </div>
-        <div id="deck-picker-list" class="deck-picker-list">
-          <!-- JSで動的生成 -->
-        </div>
-      </div>
     </header>
 
 
@@ -133,15 +117,25 @@
 
     <!-- フッター・フローティングアクション -->
     <footer class="app-footer">
-      <!-- 最新（現在）に戻るボタン -->
-      <button id="btn-return-latest" class="tool-btn return-btn" title="最新のメモへ戻る"
-        style="opacity: 0; pointer-events: none;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-          stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="18 15 12 9 6 15"></polyline>
-        </svg>
-        <span>最新へ戻る</span>
-      </button>
+      <!-- 左下：思考の束（デッキ切り替え ＆ 枚数・時間バッジ） -->
+      <div id="footer-deck-container" class="footer-deck-container">
+        <div id="deck-status" class="header-pill deck-status-pill is-clickable" role="button" tabindex="0" title="思考の束を持ち替える（タップで展開）">
+          <span id="deck-name-badge" class="deck-name-badge">Inbox</span>
+          <span id="current-index-badge" class="status-badge">1 / 10</span>
+          <span id="time-distance-badge" class="time-badge">最新</span>
+        </div>
+
+        <!-- デッキ選択ピッカー・ポップオーバー（左下ピルの真上に展開） -->
+        <div id="deck-picker-popover" class="deck-picker-popover footer-deck-picker" style="display: none;">
+          <div class="deck-picker-header">
+            <span class="deck-picker-title">思考の束を持ち替える</span>
+            <span class="deck-picker-hint">タップで切り替え</span>
+          </div>
+          <div id="deck-picker-list" class="deck-picker-list">
+            <!-- JSで動的生成 -->
+          </div>
+        </div>
+      </div>
 
       <!-- 複数選択モード専用フローティング・アクションバー -->
       <div id="select-action-bar" class="select-action-bar">
@@ -203,10 +197,29 @@
         </div>
       </div>
 
-      <!-- 右下アクション群 -->
-      <div class="fab-group">
-        <!-- 🚀 ロケットボタン（ランダムワープ） -->
-        <button id="btn-rocket-warp" class="rocket-fab" title="思考の宇宙をワープする（ランダム発掘）">
+      <!-- 右下：タイムジャンプアクション群 -->
+      <div id="footer-rocket-container" class="footer-rocket-container">
+        <!-- 🚀 タイムジャンプ・ポップオーバーメニュー -->
+        <div id="rocket-menu-popover" class="rocket-menu-popover" style="display: none;">
+          <button id="btn-menu-warp" class="rocket-menu-item" type="button" title="全メモからランダムに発掘">
+            <span class="rocket-menu-item-icon">🚀</span>
+            <div class="rocket-menu-item-text">
+              <span class="rocket-menu-item-title">ランダムワープ</span>
+              <span class="rocket-menu-item-desc">思考の宇宙を巡る</span>
+            </div>
+          </button>
+          <div class="rocket-menu-divider"></div>
+          <button id="btn-menu-latest" class="rocket-menu-item" type="button" title="時間軸の最前線（最新メモ）へ戻る">
+            <span class="rocket-menu-item-icon">⏫</span>
+            <div class="rocket-menu-item-text">
+              <span class="rocket-menu-item-title">最新へ戻る</span>
+              <span class="rocket-menu-item-desc">時間の最前線へ</span>
+            </div>
+          </button>
+        </div>
+
+        <!-- 🚀 ロケットボタン -->
+        <button id="btn-rocket-warp" class="rocket-fab" title="時間の地層をジャンプする（タップで展開）">
           <span class="rocket-icon">🚀</span>
           <span class="rocket-trail"></span>
         </button>
