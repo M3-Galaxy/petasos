@@ -325,6 +325,8 @@ html,
 body {
   width: 100%;
   height: 100%;
+  height: 100dvh;
+  min-height: -webkit-fill-available;
   overflow: hidden;
   /* ブラウザ標準のバウンスやスクロールを完全防止 */
   font-family: var(--font-sans);
@@ -338,9 +340,12 @@ body {
 
 /* アプリ全体のコンテナ */
 .app-container {
-  position: relative;
+  position: fixed;
+  inset: 0;
   width: 100%;
   height: 100%;
+  height: 100dvh;
+  min-height: -webkit-fill-available;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1859,8 +1864,8 @@ body.is-select-mode .footer-rocket-container {
 /* レスポンシブ調整（スマホ対応 ＆ ノート詳細の全画面化） */
 @media (max-width: 600px) {
   :root {
-    --card-height: 64vh;
-    --stage-y-offset: -26px;
+    --card-height: 68vh;
+    --stage-y-offset: -12px;
     /* スマホ画面で下部ピルバーとの余白を取り、カードを心地よい視覚中央へ */
   }
 
@@ -1887,7 +1892,7 @@ body.is-select-mode .footer-rocket-container {
   .note-card {
     padding: 24px 20px 20px;
     border-radius: 22px;
-    max-height: 430px;
+    max-height: 465px;
   }
 
   .note-card.card-top {
