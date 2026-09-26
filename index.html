@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Petasos - 思考をカードのように扱うメモ</title>
+  <meta name="description" content="身体性を伴うカードデッキと静かな思考の星空。紙とデジタルの美しい棲み分けを目指すローカルファーストメモ。">
+  <!-- PWA & Mobile Meta Tags -->
+  <meta name="theme-color" content="#161b22">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Petasos">
+  <!-- PWA Manifest & Icons -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="64x64" href="favicon.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div id="app" class="app-container">
+    <!-- 背景の微細な光彩エフェクト -->
+    <div class="ambient-glow glow-top"></div>
+    <div class="ambient-glow glow-bottom"></div>
+    <div class="star-dust"></div>
+
+    <!-- ヘッダー（ミニマルなピル形状アクションナビゲーション） -->
+    <header class="app-header">
+      <!-- ① 通常ナビピル（アクションツールバー） -->
+      <div id="normal-header-pill" class="header-pill action-header-pill">
+        <!-- ＋ 新規メモ作成ボタン -->
+        <button id="btn-new-note" class="new-note-btn" title="新しいメモを作成する">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
+        <div class="header-divider"></div>
+        <!-- ☑ 整理（複数選択モード）ボタン -->
+        <button id="btn-start-select" class="header-icon-btn" title="思考の整理（複数選択モードを開始）">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 11 12 14 22 4"></polyline>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+          </svg>
+        </button>
+        <div class="header-divider"></div>
+        <!-- ☁️ 同期キュー・インジケーター（アイコン化: CircleCheck / CircleDashedCheck） -->
+        <button id="sync-indicator" class="sync-indicator-btn is-synced" title="ローカル保存済み / 同期キュー">
+          <span id="sync-icon-wrap" class="sync-icon-wrap">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="m16 9-5.5 5.5L8 12"></path>
+            </svg>
+          </span>
+          <span id="sync-badge-count" class="sync-badge-count" style="display: none;">0</span>
+        </button>
+
+        <div class="header-divider"></div>
+        <!-- ⚙️ 設定ボタン（環境設定モーダルを開く） -->
+        <button id="btn-settings-open" class="settings-btn" title="設定を開く（テーマ・同期・データ）">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+            </path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- ② 選択モード専用ナビピル（選択モード時のみアクティブ） -->
+      <div id="select-header-pill" class="header-pill select-header-pill" style="display: none;">
+        <button id="btn-cancel-select" class="header-text-btn" title="選択モードを終了">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+          <span>完了</span>
+        </button>
+        <div class="header-divider"></div>
+        <div class="select-count-badge">
+          <span id="select-count-num">0</span> 件選択
+        </div>
+        <div class="header-divider"></div>
+        <button id="btn-select-all-toggle" class="header-text-btn" title="全選択 / 全解除">
+          <span id="select-all-label">全選択</span>
+        </button>
+      </div>
+    </header>
+
+
+    <!-- メインビューポート（カードデッキ表示領域） -->
+    <main id="deck-viewport" class="deck-viewport">
+      <!-- カードコンテナ（JSで3〜5枚のDOMを動的に配置） -->
+      <div id="card-stage" class="card-stage">
+        <!-- JSで生成されます -->
+      </div>
+
+      <!-- 操作ガイド / ヒント（初期表示） -->
+      <div id="gesture-hint" class="gesture-hint">
+        <div class="hint-pill">
+          <span class="hint-arrow">↕</span> 上下にめくって時間の地層を移動
+        </div>
+      </div>
+    </main>
+
+    <!-- フッター・フローティングアクション -->
+    <footer class="app-footer">
+      <!-- 左下：思考の束（デッキ切り替え ＆ 枚数・時間バッジ） -->
+      <div id="footer-deck-container" class="footer-deck-container">
+        <div id="deck-status" class="header-pill deck-status-pill is-clickable" role="button" tabindex="0" title="思考の束を持ち替える（タップで展開）">
+          <span id="deck-name-badge" class="deck-name-badge">Inbox</span>
+          <span id="current-index-badge" class="status-badge">1 / 10</span>
+          <span id="time-distance-badge" class="time-badge">最新</span>
+        </div>
+
+        <!-- デッキ選択ピッカー・ポップオーバー（左下ピルの真上に展開） -->
+        <div id="deck-picker-popover" class="deck-picker-popover footer-deck-picker" style="display: none;">
+          <div class="deck-picker-header">
+            <span class="deck-picker-title">思考の束を持ち替える</span>
+            <span class="deck-picker-hint">タップで切り替え</span>
+          </div>
+          <div id="deck-picker-list" class="deck-picker-list">
+            <!-- JSで動的生成 -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 複数選択モード専用フローティング・アクションバー -->
+      <div id="select-action-bar" class="select-action-bar">
+        <div class="action-bar-inner">
+          <button id="btn-action-link" class="action-bar-btn" title="選択したメモ同士を相互に結ぶ" disabled>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+            </svg>
+            <span>リンク</span>
+          </button>
+          <button id="btn-action-group" class="action-bar-btn" title="カテゴリを一括設定" disabled>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+              <line x1="7" y1="7" x2="7.01" y2="7"></line>
+            </svg>
+            <span>グループ化</span>
+          </button>
+          <button id="btn-action-join" class="action-bar-btn" title="選択したメモを文脈を保ったまま1つに結合" disabled>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+              <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+              <line x1="9" y1="12" x2="15" y2="12"></line>
+              <line x1="9" y1="16" x2="13" y2="16"></line>
+            </svg>
+            <span>結合</span>
+          </button>
+          <button id="btn-action-export" class="action-bar-btn" title="選択したメモをMarkdownとしてコピー" disabled>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            <span>コピー</span>
+          </button>
+          <button id="btn-action-archive" class="action-bar-btn btn-danger-action" title="選択したメモを手放す（アーカイブ）" disabled>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+            <span>手放す</span>
+          </button>
+          <div class="action-bar-divider"></div>
+          <!-- ⊞ グリッド一覧表示切り替えボタン（ハイブリッド方式） -->
+          <button id="btn-toggle-grid" class="action-bar-btn btn-grid-toggle" title="カード一覧を表示">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+            <span id="grid-toggle-text">一覧</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 右下：タイムジャンプアクション群 -->
+      <div id="footer-rocket-container" class="footer-rocket-container">
+        <!-- 🚀 タイムジャンプ・ポップオーバーメニュー -->
+        <div id="rocket-menu-popover" class="rocket-menu-popover" style="display: none;">
+          <button id="btn-menu-warp" class="rocket-menu-item" type="button" title="全メモからランダムに発掘">
+            <span class="rocket-menu-item-icon">🚀</span>
+            <div class="rocket-menu-item-text">
+              <span class="rocket-menu-item-title">ランダムワープ</span>
+              <span class="rocket-menu-item-desc">思考の宇宙を巡る</span>
+            </div>
+          </button>
+          <div class="rocket-menu-divider"></div>
+          <button id="btn-menu-latest" class="rocket-menu-item" type="button" title="時間軸の最前線（最新メモ）へ戻る">
+            <span class="rocket-menu-item-icon">⏫</span>
+            <div class="rocket-menu-item-text">
+              <span class="rocket-menu-item-title">最新へ戻る</span>
+              <span class="rocket-menu-item-desc">時間の最前線へ</span>
+            </div>
+          </button>
+        </div>
+
+        <!-- 🚀 ロケットボタン -->
+        <button id="btn-rocket-warp" class="rocket-fab" title="時間の地層をジャンプする（タップで展開）">
+          <span class="rocket-icon">🚀</span>
+          <span class="rocket-trail"></span>
+        </button>
+      </div>
+    </footer>
+
+    <!-- ワープ演出オーバーレイ -->
+    <div id="warp-overlay" class="warp-overlay">
+      <div class="warp-stars"></div>
+      <div class="warp-label">WARPING...</div>
+    </div>
+
+    <!-- 📖 ノート詳細モーダル（閲覧モード ⟷ 編集モードの切り替え） -->
+    <div id="note-modal" class="note-modal">
+      <div class="modal-card">
+        <!-- モーダルヘッダー -->
+        <div class="modal-header">
+          <!-- 閲覧モード用ボタン群 -->
+          <div id="header-view-actions" class="header-action-group">
+            <button id="btn-close-modal" class="modal-btn btn-ghost modal-btn-icon" title="デッキに戻る" aria-label="デッキに戻る">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+            <div class="modal-mode-badge view-badge">閲覧モード</div>
+            <div class="header-right-actions">
+              <button id="btn-copy-note" class="modal-btn btn-ghost modal-btn-icon" title="メモの内容をコピー" aria-label="メモの内容をコピー">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+              </button>
+              <button id="btn-switch-to-edit" class="modal-btn btn-primary modal-btn-icon" title="このメモを編集する" aria-label="このメモを編集する">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- 編集モード用ボタン群 -->
+          <div id="header-edit-actions" class="header-action-group" style="display: none;">
+            <button id="btn-cancel-edit" class="modal-btn btn-ghost" title="編集を破棄して戻る">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+              <span>破棄</span>
+            </button>
+            <div id="modal-edit-badge" class="modal-mode-badge edit-badge">編集モード</div>
+            <button id="btn-commit-edit" class="modal-btn btn-commit" title="変更を確定して保存する">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>保存</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ① 閲覧モードパネル（全文スクロール可能な安全地帯） -->
+        <div id="view-panel" class="modal-panel view-panel">
+          <div class="view-meta-row">
+            <span id="view-category-badge" class="card-tag">
+              <span class="tag-dot"></span>
+              #task
+            </span>
+            <span id="view-date-display" class="card-date">2026/09/25 09:30</span>
+          </div>
+
+          <h1 id="view-title" class="view-title">タイトル</h1>
+          <div class="view-divider"></div>
+
+          <!-- 全文スクロールエリア -->
+          <div id="view-content" class="view-body-scrollable">
+            <!-- JSでMarkdown風パースされて展開されます -->
+          </div>
+
+          <!-- 結ばれている星（関連メモ） -->
+          <div id="view-links-section" class="view-links-section" style="display: none;">
+            <div class="links-section-title">🔗 結ばれている星</div>
+            <div id="view-links-chips" class="links-chips-container"></div>
+          </div>
+        </div>
+
+        <!-- ② 編集モードパネル（ノイズレス入力フォーム） -->
+        <div id="edit-panel" class="modal-panel edit-panel" style="display: none;">
+          <div class="editor-meta-row">
+            <div class="tag-input-wrapper">
+              <span class="tag-hash">#</span>
+              <input type="text" id="edit-category" class="editor-input-category" placeholder="カテゴリ (例: UI設計, 思想)"
+                autocomplete="off">
+            </div>
+            <div id="edit-date-display" class="editor-date-display">2026/09/25</div>
+          </div>
+
+          <!-- 🏷️ 既存カテゴリのサジェストチップ一覧（未入力フォーカス時に動的生成） -->
+          <div id="category-suggestions" class="category-suggestions" style="display: none;"></div>
+
+          <input type="text" id="edit-title" class="editor-input-title" placeholder="タイトルを入力..." autocomplete="off">
+
+          <div class="editor-divider"></div>
+
+          <textarea id="edit-content" class="editor-textarea"
+            placeholder="ここに思考の断片を書き留める...（Markdownやチェックボックス - [ ] も使えます）"></textarea>
+
+          <div id="edit-links-section" class="editor-links-section" style="display: none;">
+            <div class="links-section-title">🔗 結ばれている星</div>
+            <div id="edit-links-chips" class="links-chips-container"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⚙️ 設定モーダル（テーマ切替・データ管理・将来のGitHub同期設定） -->
+    <div id="settings-modal" class="settings-modal">
+      <div class="settings-modal-card">
+        <!-- モーダルヘッダー -->
+        <div class="settings-modal-header">
+          <div class="settings-modal-title">
+            <span class="settings-title-icon">⚙️</span>
+            <span>環境設定</span>
+          </div>
+          <button id="btn-close-settings" class="modal-btn btn-ghost" title="設定を閉じる">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+            <span>閉じる</span>
+          </button>
+        </div>
+
+        <!-- ⚙️ 設定タブ切り替えバー -->
+        <div class="settings-tab-nav">
+          <button class="settings-tab-btn is-active" data-tab="theme">
+            <span>外観テーマ</span>
+          </button>
+          <button class="settings-tab-btn" data-tab="data">
+            <span>データ & 同期</span>
+          </button>
+          <button class="settings-tab-btn" data-tab="github">
+            <span>GitHub連携</span>
+          </button>
+          <button class="settings-tab-btn" data-tab="about">
+            <span>About</span>
+          </button>
+        </div>
+
+        <!-- モーダルボディ（タブコンテナ） -->
+        <div class="settings-modal-body">
+          <!-- ① 外観テーマ タブ -->
+          <div id="tab-pane-theme" class="settings-tab-pane is-active">
+            <div class="settings-section">
+              <div class="settings-section-header">
+                <h3 class="settings-section-title">外観カラーテーマ</h3>
+                <p class="settings-section-desc">クリックすると即座にアプリ全体の色彩・文字色・質感が切り替わります</p>
+              </div>
+
+              <!-- 星屑テクスチャのトグル -->
+              <div class="settings-toggle-row">
+                <div class="toggle-info">
+                  <div class="toggle-name">星屑テクスチャ</div>
+                  <div class="toggle-desc">背景の繊細な星屑粒子エフェクト</div>
+                </div>
+                <label class="toggle-switch" title="星屑エフェクトの表示/非表示">
+                  <input type="checkbox" id="toggle-stars" checked>
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+
+              <div class="theme-options-grid">
+                <!-- トワイライト（ドーン） -->
+                <div id="theme-opt-twilight" class="theme-option-card" data-theme="twilight">
+                  <div class="theme-option-preview twilight-preview">
+                    <span class="preview-icon">🌌</span>
+                  </div>
+                  <div class="theme-option-info">
+                    <div class="theme-option-name">トワイライト（ドーン）</div>
+                    <div class="theme-option-desc">夜明けブルーグレー × 静謐グレー × ティール</div>
+                  </div>
+                  <span class="theme-active-tag">✓ 適用中</span>
+                </div>
+
+                <!-- トワイライト（ダスク） -->
+                <div class="theme-option-card" data-theme="twilight-coral">
+                  <div class="theme-option-preview twilight-coral-preview">
+                    <span class="preview-icon">🌇</span>
+                  </div>
+                  <div class="theme-option-info">
+                    <div class="theme-option-name">トワイライト（ダスク）</div>
+                    <div class="theme-option-desc">夕暮れラベンダーグレー × 羊皮紙 × コーラル</div>
+                  </div>
+                  <span class="theme-active-tag">✓ 適用中</span>
+                </div>
+
+                <!-- エイリアン・ライム（漆黒 × ネオンライム） -->
+                <div class="theme-option-card" data-theme="mauve">
+                  <div class="theme-option-preview mauve-preview">
+                    <span class="preview-icon">🪐</span>
+                  </div>
+                  <div class="theme-option-info">
+                    <div class="theme-option-name">エイリアン・ライム</div>
+                    <div class="theme-option-desc">漆黒の宇宙 × ブラックカード × ネオンライム</div>
+                  </div>
+                  <span class="theme-active-tag">✓ 適用中</span>
+                </div>
+
+                <!-- トワイライト・スターダスト -->
+                <div class="theme-option-card" data-theme="stardust">
+                  <div class="theme-option-preview stardust-preview">
+                    <span class="preview-icon">🌠</span>
+                  </div>
+                  <div class="theme-option-info">
+                    <div class="theme-option-name">スターダスト</div>
+                    <div class="theme-option-desc">夜空ネイビー × 月明かり × ゴールド</div>
+                  </div>
+                  <span class="theme-active-tag">✓ 適用中</span>
+                </div>
+
+                <!-- 白亜とオリーブ（地中海の石壁 × 羊皮紙 × オリーブの葉） -->
+                <div class="theme-option-card" data-theme="sage">
+                  <div class="theme-option-preview sage-preview">
+                    <span class="preview-icon">🌿</span>
+                  </div>
+                  <div class="theme-option-info">
+                    <div class="theme-option-name">白亜とオリーブ</div>
+                    <div class="theme-option-desc">白亜の石壁 × 羊皮紙 × オリーブの葉</div>
+                  </div>
+                  <span class="theme-active-tag">✓ 適用中</span>
+                </div>
+
+                <!-- デイライト -->
+                <div id="theme-opt-daylight" class="theme-option-card" data-theme="daylight">
+                  <div class="theme-option-preview daylight-preview">
+                    <span class="preview-icon">☀️</span>
+                  </div>
+                  <div class="theme-option-info">
+                    <div class="theme-option-name">デイライト</div>
+                    <div class="theme-option-desc">澄んだ昼のホワイト × シアン</div>
+                  </div>
+                  <span class="theme-active-tag">✓ 適用中</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ② ローカルデータ & 同期キュー タブ -->
+          <div id="tab-pane-data" class="settings-tab-pane">
+            <div class="settings-section">
+              <div class="settings-section-header">
+                <h3 class="settings-section-title">ローカルデータ & 同期キュー</h3>
+                <p class="settings-section-desc">IndexedDB に保存された思考の実体と同期待ちアクション</p>
+              </div>
+              <div class="storage-stats-container">
+                <div class="storage-stat-item">
+                  <span class="stat-label">保存済みメモ</span>
+                  <span id="settings-notes-count" class="stat-value">-- 件</span>
+                </div>
+                <div class="storage-stat-item">
+                  <span class="stat-label">同期待ちキュー</span>
+                  <span id="settings-queue-count" class="stat-value">-- 件</span>
+                </div>
+              </div>
+              <div class="settings-actions-row">
+                <button id="btn-export-json" class="settings-action-btn" title="全メモをJSONファイルとしてダウンロード">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
+                  <span>JSONエクスポート</span>
+                </button>
+                <button id="btn-clear-queue" class="settings-action-btn btn-action-muted" title="同期待ちキューをクリアして同期済みに戻す">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="1 4 1 10 7 10"></polyline>
+                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                  </svg>
+                  <span>キューをクリア</span>
+                </button>
+                <button id="btn-reset-db" class="settings-action-btn btn-action-danger" title="IndexedDBのメモを全削除して初期チュートリアル状態にリセット">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                  </svg>
+                  <span>全初期化</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ③ GitHub同期設定 タブ -->
+          <div id="tab-pane-github" class="settings-tab-pane">
+            <div class="settings-section">
+              <div class="settings-section-header">
+                <h3 class="settings-section-title">GitHub 同期連携</h3>
+                <p class="settings-section-desc">専用のPrivateリポジトリ（1メモ＝1ファイル）と安全に双方向同期します</p>
+              </div>
+              <div class="github-config-box">
+                <div class="config-field">
+                  <label for="input-github-token" class="config-label">Personal Access Token (fine-grained /
+                    classic)</label>
+                  <input type="password" id="input-github-token" class="config-input"
+                    placeholder="github_pat_... または ghp_..." autocomplete="off">
+                </div>
+                <div class="config-field">
+                  <label for="input-github-repo" class="config-label">リポジトリ名 (例: username/petasos-notes)</label>
+                  <input type="text" id="input-github-repo" class="config-input" placeholder="owner/repo"
+                    autocomplete="off">
+                </div>
+
+                <!-- 接続テスト結果ボックス -->
+                <div id="github-test-result" class="github-test-result" style="display: none;"></div>
+
+                <div class="config-actions-row">
+                  <button id="btn-save-github-config" class="settings-save-btn">設定を保存</button>
+                  <button id="btn-sync-pull-now" class="settings-test-btn" title="GitHubから最新の思考を取り込む（プル同期）">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                      stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="7 10 12 15 17 10"></polyline>
+                      <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    <span>最新を取り込む</span>
+                  </button>
+                  <button id="btn-test-github" class="settings-test-btn" title="GitHub APIとの疎通を確認">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                      stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                      <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                    <span id="btn-test-github-text">接続テスト</span>
+                  </button>
+                </div>
+
+                <div class="config-hint-box">
+                  <span class="hint-icon">🔒</span>
+                  <span>トークンはお手元のブラウザ内（localStorage）にのみ安全に保管されます。通信はブラウザからGitHub公式APIへのみ直接行われます。</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ④ About タブ -->
+          <div id="tab-pane-about" class="settings-tab-pane">
+            <div class="about-hero-section">
+              <!-- テーマに連動して色が変わるヘルメス透過線画エンブレム -->
+              <div class="about-emblem-wrap">
+                <div class="about-hermes-emblem" aria-label="Petasos Emblem"></div>
+              </div>
+              <h3 class="about-app-title">Petasos</h3>
+              <p class="about-app-subtitle">身体性を伴うカードデッキと、静かな思考の星空</p>
+              <span class="about-version-badge">v2.0.0 (PWA & BYOS)</span>
+            </div>
+
+            <!-- アプリをインストール（PWA）セクション -->
+            <div class="about-action-section">
+              <button id="btn-install-pwa" class="about-install-btn" style="display: none;"
+                title="ホーム画面またはPCにアプリをインストール">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                  <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                </svg>
+                <span>アプリをインストール</span>
+              </button>
+            </div>
+
+            <!-- リンク ＆ クレジット -->
+            <div class="about-links-section">
+              <a href="https://github.com/M3-Galaxy/petasos" target="_blank" rel="noopener noreferrer"
+                class="about-link-item">
+                <div class="about-link-info">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path
+                      d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+                    </path>
+                  </svg>
+                  <span class="about-link-title">GitHub リポジトリ</span>
+                </div>
+                <span class="about-link-arrow">↗</span>
+              </a>
+
+              <div class="about-footer-meta">
+                <span>Released under MIT License</span>
+                <span>© 2026 M3-Galaxy</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⊞ 思考のカード一覧シート（案1-C ハイブリッド俯瞰シート） -->
+    <div id="grid-view-sheet" class="grid-view-sheet">
+      <div class="grid-sheet-card">
+        <!-- シートヘッダー -->
+        <div class="grid-sheet-header">
+          <div class="grid-sheet-title-group">
+            <span class="sheet-title-icon">⊞</span>
+            <div class="sheet-title-text-wrap">
+              <h2 class="grid-sheet-title">思考のカード一覧</h2>
+              <span class="grid-sheet-subtitle">タップして複数選択 ⟷ 下部のアクションで一括整理</span>
+            </div>
+            <span id="grid-selected-count-badge" class="grid-count-badge">0 件選択</span>
+          </div>
+          <button id="btn-close-grid-sheet" class="modal-btn btn-ghost" title="カードデッキ表示に戻る">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+            <span>デッキへ</span>
+          </button>
+        </div>
+
+        <!-- シートボディ（カードタイルが並ぶグリッド領域） -->
+        <div id="grid-sheet-body" class="grid-sheet-body">
+          <div id="grid-tiles-stage" class="grid-tiles-stage">
+            <!-- JSで動的生成されます -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🏷️ グループ化（カテゴリ一括設定）モーダル -->
+    <div id="group-modal" class="sub-modal">
+      <div class="sub-modal-card">
+        <div class="sub-modal-header">
+          <div class="sub-modal-title">
+            <span>🏷️</span>
+            <span>カテゴリを一括設定</span>
+          </div>
+          <button id="btn-close-group-modal" class="modal-btn btn-ghost" title="閉じる">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+        <div class="sub-modal-body">
+          <p class="sub-modal-desc">
+            選択した <strong id="group-target-count" class="accent-text">0</strong> 件のメモに付与するカテゴリを入力または選択してください。
+          </p>
+          <div class="sub-modal-input-wrap">
+            <span class="tag-hash">#</span>
+            <input type="text" id="input-group-category" class="sub-modal-input" placeholder="カテゴリ名 (例: UI設計, 発想, 読書メモ)"
+              autocomplete="off">
+          </div>
+          <div class="existing-tags-section">
+            <div class="existing-tags-label">既存のカテゴリから選ぶ:</div>
+            <div id="existing-category-chips" class="existing-tags-chips">
+              <!-- JSで既存カテゴリのチップを生成 -->
+            </div>
+          </div>
+        </div>
+        <div class="sub-modal-footer">
+          <button id="btn-cancel-group" class="modal-btn btn-ghost">キャンセル</button>
+          <div class="sub-modal-footer-actions">
+            <button id="btn-clear-group" class="modal-btn btn-ghost btn-danger-action" title="選択したメモのカテゴリを解除して未分類にします">
+              <span>カテゴリを解除</span>
+            </button>
+            <button id="btn-apply-group" class="modal-btn btn-primary">
+              <span>カテゴリを適用</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🔗 リンク管理（相互結び / リンク解除）モーダル -->
+    <div id="link-modal" class="sub-modal">
+      <div class="sub-modal-card">
+        <div class="sub-modal-header">
+          <div class="sub-modal-title">
+            <span>🔗</span>
+            <span>星の結びつきを管理</span>
+          </div>
+          <button id="btn-close-link-modal" class="modal-btn btn-ghost" title="閉じる">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+        <div class="sub-modal-body">
+          <p id="link-modal-desc" class="sub-modal-desc">
+            選択した <strong id="link-target-count" class="accent-text">0</strong> 件のメモ同士の結びつき（リンク）を設定します。
+          </p>
+          <div id="link-status-badge" class="link-status-banner">
+            <!-- リンク状況を動的に表示 -->
+          </div>
+        </div>
+        <div class="sub-modal-footer">
+          <button id="btn-cancel-link-modal" class="modal-btn btn-ghost">キャンセル</button>
+          <div class="sub-modal-footer-actions">
+            <button id="btn-unlink-action" class="modal-btn btn-ghost btn-danger-action" title="選択したメモ同士のリンクを解除します">
+              <span>リンクを解除</span>
+            </button>
+            <button id="btn-apply-link-action" class="modal-btn btn-primary" title="選択したメモ同士を相互に結びます">
+              <span>相互リンクを結ぶ</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- コミット・操作完了トースト（Undo機能付き） -->
+    <div id="commit-toast" class="commit-toast">
+      <span id="toast-message-text" class="toast-message">デッキを更新しました</span>
+      <button id="btn-toast-undo" class="toast-undo-btn" style="display: none;">元に戻す</button>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+
+</html>
