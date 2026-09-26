@@ -291,6 +291,21 @@ export class DeckController {
   }
 
   // ---------------------------------------------------------------------------
+  // 関連メモをID降順（新しい順）で取得
+  // ---------------------------------------------------------------------------
+  getSortedLinkedNotes() {
+    const linked = this.app.state.getLinkedNotes();
+    if (!linked || linked.length === 0) return [];
+    // IDが新しい順（例: note-004 > note-002）にソート
+    return [...linked].sort((a, b) => {
+      if (a.id && b.id) {
+        return b.id.localeCompare(a.id, undefined, { numeric: true });
+      }
+      return 0;
+    });
+  }
+
+  // ---------------------------------------------------------------------------
   // 画面の3〜5枚のDOMを配置（スライディングウィンドウ）
   // ---------------------------------------------------------------------------
   renderCards() {
@@ -336,7 +351,6 @@ export class DeckController {
     const current = this.app.state.getCurrentNote();
     const top = this.app.state.getTopNote();
     const bottom = this.app.state.getBottomNote();
-    const linked = this.app.state.getLinkedNotes();
 
     // 1. 上のカード（より新しい）
     if (top) {
@@ -354,14 +368,21 @@ export class DeckController {
       this.bottomCard = null;
     }
 
-    // 3. 左右の関連カード（もしリンクが存在すれば）
-    if (linked.length > 0) {
-      this.rightCard = this.createCardElement(linked[0], "card-right");
+    // 3. 左右の関連カード（IDが新しい順に 右 ➔ 左 へ配置）
+    const sortedLinked = this.getSortedLinkedNotes();
+    if (sortedLinked.length >= 1) {
+      this.rightCard = this.createCardElement(sortedLinked[0], "card-right");
       this.stage.appendChild(this.rightCard);
     } else {
       this.rightCard = null;
     }
-    this.leftCard = null;
+
+    if (sortedLinked.length >= 2) {
+      this.leftCard = this.createCardElement(sortedLinked[1], "card-left");
+      this.stage.appendChild(this.leftCard);
+    } else {
+      this.leftCard = null;
+    }
 
     // 4. 中央のアクティブカード
     if (current) {
@@ -491,6 +512,7 @@ export class DeckController {
     if (this.topCard) this.topCard.classList.add("is-dragging");
     if (this.bottomCard) this.bottomCard.classList.add("is-dragging");
     if (this.rightCard) this.rightCard.classList.add("is-dragging");
+    if (this.leftCard) this.leftCard.classList.add("is-dragging");
 
     // 操作開始したらヒントをフェードアウト
     if (this.gestureHint) {
@@ -561,8 +583,8 @@ export class DeckController {
       if (!this.rightCard && dx < 0) {
         effectiveDx = dx * 0.2;
       }
-      if (dx > 0) {
-        effectiveDx = dx * 0.2; // 今回は右スライドのみリンクがある想定
+      if (!this.leftCard && dx > 0) {
+        effectiveDx = dx * 0.2;
       }
       this.currentDeltaX = effectiveDx;
       this.currentDeltaY = 0;
@@ -571,11 +593,20 @@ export class DeckController {
         this.centerCard.style.transform = `translate3d(${effectiveDx}px, 0, 0)`;
       }
 
+      // 右のカード（左へスワイプ時：右から中央へ引き寄せ）
       if (this.rightCard && effectiveDx < 0) {
         const progress = Math.min(Math.abs(effectiveDx) / 300, 1);
         const xPos = 94 - progress * 94;
         this.rightCard.style.transform = `translate3d(${xPos}%, 0, 0) scale(${0.92 + progress * 0.08})`;
         this.rightCard.style.opacity = 0.6 + progress * 0.4;
+      }
+
+      // 左のカード（右へスワイプ時：左から中央へ引き寄せ）
+      if (this.leftCard && effectiveDx > 0) {
+        const progress = Math.min(effectiveDx / 300, 1);
+        const xPos = -94 + progress * 94;
+        this.leftCard.style.transform = `translate3d(${xPos}%, 0, 0) scale(${0.92 + progress * 0.08})`;
+        this.leftCard.style.opacity = 0.6 + progress * 0.4;
       }
     }
   }
@@ -602,7 +633,7 @@ export class DeckController {
     }
 
     // トランジション復活
-    [this.centerCard, this.topCard, this.bottomCard, this.rightCard].forEach(card => {
+    [this.centerCard, this.topCard, this.bottomCard, this.rightCard, this.leftCard].forEach(card => {
       if (card) {
         card.classList.remove("is-dragging");
       }
@@ -638,8 +669,11 @@ export class DeckController {
       }
     } else if (this.dragAxis === "horizontal") {
       if (this.currentDeltaX < -threshold && this.rightCard) {
-        // 左へスワイプ ➔ 関連メモへ
+        // 左へスワイプ ➔ 右の関連メモへ
         this.triggerCardSwitch("right");
+      } else if (this.currentDeltaX > threshold && this.leftCard) {
+        // 右へスワイプ ➔ 左の関連メモへ
+        this.triggerCardSwitch("left");
       } else {
         this.resetCardTransforms();
       }
@@ -668,6 +702,10 @@ export class DeckController {
       this.rightCard.style.transform = "";
       this.rightCard.style.opacity = "";
     }
+    if (this.leftCard) {
+      this.leftCard.style.transform = "";
+      this.leftCard.style.opacity = "";
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -686,12 +724,13 @@ export class DeckController {
         this.resetCardTransforms();
         return;
       }
-    } else if (direction === "right") {
+    } else if (direction === "right" || direction === "left") {
       // 関連メモへジャンプ（別カテゴリのメモでも確実に追従）
       const current = this.app.state.getCurrentNote();
       if (current && current.links && current.links.length > 0) {
-        const targetId = current.links[0];
-        if (!this.app.state.jumpToNote(targetId)) {
+        const sortedLinked = this.getSortedLinkedNotes();
+        const targetNote = direction === "right" ? sortedLinked[0] : sortedLinked[1];
+        if (targetNote && !this.app.state.jumpToNote(targetNote.id)) {
           this.resetCardTransforms();
           return;
         }

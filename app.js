@@ -117,6 +117,9 @@ class PhysicalCardDeckApp {
       } else if (e.key === "ArrowRight" && this.deck.rightCard) {
         e.preventDefault();
         this.triggerCardSwitch("right");
+      } else if (e.key === "ArrowLeft" && this.deck.leftCard) {
+        e.preventDefault();
+        this.triggerCardSwitch("left");
       }
     });
   }
