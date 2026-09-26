@@ -3,7 +3,8 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Petasos - 思考をカードのように扱うメモ</title>
   <meta name="description" content="身体性を伴うカードデッキと静かな思考の星空。紙とデジタルの美しい棲み分けを目指すローカルファーストメモ。">
   <!-- PWA & Mobile Meta Tags -->
@@ -119,7 +120,8 @@
     <footer class="app-footer">
       <!-- 左下：思考の束（デッキ切り替え ＆ 枚数・時間バッジ） -->
       <div id="footer-deck-container" class="footer-deck-container">
-        <div id="deck-status" class="header-pill deck-status-pill is-clickable" role="button" tabindex="0" title="思考の束を持ち替える（タップで展開）">
+        <div id="deck-status" class="header-pill deck-status-pill is-clickable" role="button" tabindex="0"
+          title="思考の束を持ち替える（タップで展開）">
           <span id="deck-name-badge" class="deck-name-badge">Inbox</span>
           <span id="current-index-badge" class="status-badge">1 / 10</span>
           <span id="time-distance-badge" class="time-badge">最新</span>
@@ -248,14 +250,16 @@
             </button>
             <div class="modal-mode-badge view-badge">閲覧モード</div>
             <div class="header-right-actions">
-              <button id="btn-copy-note" class="modal-btn btn-ghost modal-btn-icon" title="メモの内容をコピー" aria-label="メモの内容をコピー">
+              <button id="btn-copy-note" class="modal-btn btn-ghost modal-btn-icon" title="メモの内容をコピー"
+                aria-label="メモの内容をコピー">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
                   stroke-linecap="round" stroke-linejoin="round">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                   <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                 </svg>
               </button>
-              <button id="btn-switch-to-edit" class="modal-btn btn-primary modal-btn-icon" title="このメモを編集する" aria-label="このメモを編集する">
+              <button id="btn-switch-to-edit" class="modal-btn btn-primary modal-btn-icon" title="このメモを編集する"
+                aria-label="このメモを編集する">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
                   stroke-linecap="round" stroke-linejoin="round">
                   <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
@@ -316,8 +320,7 @@
           <div class="editor-meta-row">
             <div class="tag-input-wrapper">
               <span class="tag-hash">#</span>
-              <input type="text" id="edit-category" class="editor-input-category" placeholder="カテゴリ (例: UI設計, 思想)"
-                autocomplete="off">
+              <input type="text" id="edit-category" class="editor-input-category" placeholder="カテゴリ" autocomplete="off">
             </div>
             <div id="edit-date-display" class="editor-date-display">2026/09/25</div>
           </div>
@@ -329,8 +332,7 @@
 
           <div class="editor-divider"></div>
 
-          <textarea id="edit-content" class="editor-textarea"
-            placeholder="ここに思考の断片を書き留める...（Markdownやチェックボックス - [ ] も使えます）"></textarea>
+          <textarea id="edit-content" class="editor-textarea" placeholder="思考の断片を書き留める..."></textarea>
 
           <div id="edit-links-section" class="editor-links-section" style="display: none;">
             <div class="links-section-title">🔗 結ばれている星</div>
@@ -508,7 +510,8 @@
                   </svg>
                   <span>キューをクリア</span>
                 </button>
-                <button id="btn-reset-db" class="settings-action-btn btn-action-danger" title="IndexedDBのメモを全削除して初期チュートリアル状態にリセット">
+                <button id="btn-reset-db" class="settings-action-btn btn-action-danger"
+                  title="IndexedDBのメモを全削除して初期チュートリアル状態にリセット">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="3 6 5 6 21 6"></polyline>
@@ -679,8 +682,7 @@
           </p>
           <div class="sub-modal-input-wrap">
             <span class="tag-hash">#</span>
-            <input type="text" id="input-group-category" class="sub-modal-input" placeholder="カテゴリ名 (例: UI設計, 発想, 読書メモ)"
-              autocomplete="off">
+            <input type="text" id="input-group-category" class="sub-modal-input" placeholder="カテゴリ名" autocomplete="off">
           </div>
           <div class="existing-tags-section">
             <div class="existing-tags-label">既存のカテゴリから選ぶ:</div>
