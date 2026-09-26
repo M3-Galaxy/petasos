@@ -261,7 +261,7 @@
                 stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
-              <span>保存（コミット）</span>
+              <span>保存</span>
             </button>
           </div>
         </div>
@@ -658,9 +658,52 @@
         </div>
         <div class="sub-modal-footer">
           <button id="btn-cancel-group" class="modal-btn btn-ghost">キャンセル</button>
-          <button id="btn-apply-group" class="modal-btn btn-primary">
-            <span>カテゴリを適用</span>
+          <div class="sub-modal-footer-actions">
+            <button id="btn-clear-group" class="modal-btn btn-ghost btn-danger-action" title="選択したメモのカテゴリを解除して未分類にします">
+              <span>カテゴリを解除</span>
+            </button>
+            <button id="btn-apply-group" class="modal-btn btn-primary">
+              <span>カテゴリを適用</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🔗 リンク管理（相互結び / リンク解除）モーダル -->
+    <div id="link-modal" class="sub-modal">
+      <div class="sub-modal-card">
+        <div class="sub-modal-header">
+          <div class="sub-modal-title">
+            <span>🔗</span>
+            <span>星の結びつきを管理</span>
+          </div>
+          <button id="btn-close-link-modal" class="modal-btn btn-ghost" title="閉じる">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
           </button>
+        </div>
+        <div class="sub-modal-body">
+          <p id="link-modal-desc" class="sub-modal-desc">
+            選択した <strong id="link-target-count" class="accent-text">0</strong> 件のメモ同士の結びつき（リンク）を設定します。
+          </p>
+          <div id="link-status-badge" class="link-status-banner">
+            <!-- リンク状況を動的に表示 -->
+          </div>
+        </div>
+        <div class="sub-modal-footer">
+          <button id="btn-cancel-link-modal" class="modal-btn btn-ghost">キャンセル</button>
+          <div class="sub-modal-footer-actions">
+            <button id="btn-unlink-action" class="modal-btn btn-ghost btn-danger-action" title="選択したメモ同士のリンクを解除します">
+              <span>リンクを解除</span>
+            </button>
+            <button id="btn-apply-link-action" class="modal-btn btn-primary" title="選択したメモ同士を相互に結びます">
+              <span>相互リンクを結ぶ</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

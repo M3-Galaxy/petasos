@@ -224,7 +224,8 @@ export class DeckController {
   createCardElement(note, positionClass) {
     const card = document.createElement("div");
     const isSelected = this.app.state.isSelected(note.id);
-    card.className = `note-card ${positionClass}${isSelected ? " is-selected" : ""}`;
+    const isLinkedTarget = this.app.selection && this.app.selection.isLinkedToSelection ? this.app.selection.isLinkedToSelection(note.id) : false;
+    card.className = `note-card ${positionClass}${isSelected ? " is-selected" : ""}${isLinkedTarget ? " is-linked-target" : ""}`;
     card.dataset.id = note.id;
 
     // 本文のチェックボックス記法の簡易パース
@@ -258,6 +259,9 @@ export class DeckController {
     }
 
     card.innerHTML = `
+      <!-- 選択中のメモと結ばれている星のバッジ -->
+      <div class="card-linked-badge" title="選択中のメモと結ばれています">🔗</div>
+
       <!-- 選択モード用チェックアイコン -->
       <div class="card-select-checkbox" title="${isSelected ? '選択を解除' : '選択する'}">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"

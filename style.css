@@ -1568,6 +1568,37 @@ body {
   padding: 4px 10px;
   border-radius: var(--radius-pill);
   font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.link-chip.is-editable {
+  padding-right: 6px;
+}
+
+.btn-remove-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--accent-cyan);
+  cursor: pointer;
+  padding: 0;
+  opacity: 0.7;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-remove-link:hover {
+  opacity: 1;
+  background: rgba(239, 68, 68, 0.16);
+  color: #ef4444;
+  transform: scale(1.15);
 }
 
 /* ==========================================================================
@@ -2322,6 +2353,44 @@ body {
   transform: scale(1);
 }
 
+/* 選択カードと結ばれているカードのふわっとリンクアイコン */
+.card-linked-badge {
+  position: absolute;
+  top: 18px;
+  right: 54px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent-cyan-light);
+  border: 1.5px solid var(--accent-cyan);
+  color: var(--accent-cyan);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.6);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 10;
+  box-shadow: 0 4px 12px var(--accent-cyan-glow);
+}
+
+.note-card.is-linked-target .card-linked-badge {
+  opacity: 1;
+  transform: scale(1);
+  animation: pulseGlow 2s infinite ease-in-out;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 var(--accent-cyan-glow);
+  }
+  50% {
+    box-shadow: 0 0 0 5px var(--accent-cyan-glow);
+  }
+}
+
 /* 長押し（ロングプレス）中のフィードバックアニメーション */
 .note-card.is-long-pressing {
   transform: scale(0.96) !important;
@@ -2685,6 +2754,54 @@ body {
   transform: scale(1);
 }
 
+.tile-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tile-linked-badge {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent-cyan-light);
+  border: 1px solid var(--accent-cyan);
+  color: var(--accent-cyan);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.6);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px var(--accent-cyan-glow);
+}
+
+.grid-tile.is-linked-target .tile-linked-badge {
+  opacity: 1;
+  transform: scale(1);
+  animation: pulseGlow 2s infinite ease-in-out;
+}
+
+.link-status-banner {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--accent-cyan-light);
+  border: 1px solid var(--accent-cyan);
+  color: var(--text-main);
+  font-size: 12px;
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.link-status-banner.has-links {
+  background: rgba(124, 88, 170, 0.12);
+  border-color: var(--accent-purple);
+}
+
 .tile-title {
   margin: 0;
   font-size: 14px;
@@ -2862,11 +2979,17 @@ body {
 .sub-modal-footer {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: 8px;
   padding: 14px 20px;
   border-top: 1px solid var(--border-subtle);
   background: var(--bg-header);
+}
+
+.sub-modal-footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 /* --------------------------------------------------------------------------

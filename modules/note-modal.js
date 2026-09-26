@@ -103,6 +103,16 @@ export class NoteModal {
         }
       });
     }
+
+    if (this.editLinksChips) {
+      this.editLinksChips.addEventListener("click", (e) => {
+        const removeBtn = e.target.closest(".btn-remove-link");
+        if (removeBtn && removeBtn.dataset.targetId) {
+          e.stopPropagation();
+          this.removeLink(removeBtn.dataset.targetId);
+        }
+      });
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -218,17 +228,7 @@ export class NoteModal {
     if (this.editDateDisplay) this.editDateDisplay.textContent = note.date;
     if (this.modalEditBadge) this.modalEditBadge.textContent = "編集モード";
 
-    const linked = this.app.state.getLinkedNotes();
-    if (this.editLinksSection && this.editLinksChips) {
-      if (linked.length > 0) {
-        this.editLinksSection.style.display = "block";
-        this.editLinksChips.innerHTML = linked.map(l => 
-          `<span class="link-chip">🔗 ${escapeHtml(l.title)}</span>`
-        ).join("");
-      } else {
-        this.editLinksSection.style.display = "none";
-      }
-    }
+    this.renderEditLinksChips();
 
     if (this.headerViewActions) this.headerViewActions.style.display = "none";
     if (this.headerEditActions) this.headerEditActions.style.display = "flex";
@@ -238,6 +238,61 @@ export class NoteModal {
     setTimeout(() => {
       if (this.editContent) this.editContent.focus();
     }, 150);
+  }
+
+  // 編集モードでのリンクチップ描画
+  renderEditLinksChips() {
+    const linked = this.app.state.getLinkedNotes();
+    if (this.editLinksSection && this.editLinksChips) {
+      if (linked.length > 0) {
+        this.editLinksSection.style.display = "block";
+        this.editLinksChips.innerHTML = linked.map(l => 
+          `<span class="link-chip is-editable" data-target-id="${l.id}">
+            <span>🔗 ${escapeHtml(l.title)}</span>
+            <button type="button" class="btn-remove-link" data-target-id="${l.id}" title="「${escapeHtml(l.title)}」とのリンクを解除">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </span>`
+        ).join("");
+      } else {
+        this.editLinksSection.style.display = "none";
+      }
+    }
+  }
+
+  // 個別リンクの相互解除
+  async removeLink(targetId) {
+    const currentNote = this.app.state.getCurrentNote();
+    if (!currentNote || !targetId) return;
+
+    try {
+      await this.app.storage.removeMutualLink(currentNote.id, targetId);
+
+      // state（メモリ上のキャッシュ）を即時更新
+      currentNote.links = (currentNote.links || []).filter((id) => id !== targetId);
+      currentNote.updated_at = new Date().toISOString();
+
+      const targetNote = this.app.state.notes.find((n) => n.id === targetId);
+      if (targetNote) {
+        targetNote.links = (targetNote.links || []).filter((id) => id !== currentNote.id);
+        targetNote.updated_at = new Date().toISOString();
+      }
+
+      this.renderEditLinksChips();
+      this.app.renderCards();
+      this.app.showToast("🔗 リンクを解除しました");
+
+      if (this.app.sync) {
+        await this.app.sync.updateSyncIndicator();
+        this.app.sync.syncPushQueue({ isManual: false });
+      }
+    } catch (e) {
+      console.error("Remove link error:", e);
+      this.app.showToast("リンクの解除に失敗しました");
+    }
   }
 
   openEditor(mode = "create") {

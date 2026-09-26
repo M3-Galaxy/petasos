@@ -38,7 +38,17 @@ export class SelectionManager {
     this.inputGroupCategory = document.getElementById("input-group-category");
     this.existingCategoryChips = document.getElementById("existing-category-chips");
     this.btnCancelGroup = document.getElementById("btn-cancel-group");
+    this.btnClearGroup = document.getElementById("btn-clear-group");
     this.btnApplyGroup = document.getElementById("btn-apply-group");
+
+    // リンク管理（相互結び / リンク解除）モーダルDOM
+    this.linkModal = document.getElementById("link-modal");
+    this.linkTargetCount = document.getElementById("link-target-count");
+    this.linkStatusBadge = document.getElementById("link-status-badge");
+    this.btnCancelLinkModal = document.getElementById("btn-cancel-link-modal");
+    this.btnCloseLinkModal = document.getElementById("btn-close-link-modal");
+    this.btnUnlinkAction = document.getElementById("btn-unlink-action");
+    this.btnApplyLinkAction = document.getElementById("btn-apply-link-action");
   }
 
   init() {
@@ -68,7 +78,7 @@ export class SelectionManager {
 
     // 一括アクションボタン
     if (this.btnActionLink) {
-      this.btnActionLink.addEventListener("click", () => this.executeLink());
+      this.btnActionLink.addEventListener("click", () => this.openLinkModal());
     }
     if (this.btnActionGroup) {
       this.btnActionGroup.addEventListener("click", () => this.openGroupModal());
@@ -87,6 +97,9 @@ export class SelectionManager {
     if (this.btnCancelGroup) {
       this.btnCancelGroup.addEventListener("click", () => this.closeGroupModal());
     }
+    if (this.btnClearGroup) {
+      this.btnClearGroup.addEventListener("click", () => this.executeClearGroup());
+    }
     if (this.btnApplyGroup) {
       this.btnApplyGroup.addEventListener("click", () => this.executeGroup());
     }
@@ -94,6 +107,27 @@ export class SelectionManager {
       this.groupModal.addEventListener("click", (e) => {
         if (e.target === this.groupModal) {
           this.closeGroupModal();
+        }
+      });
+    }
+
+    // リンク管理モーダル
+    if (this.btnCancelLinkModal) {
+      this.btnCancelLinkModal.addEventListener("click", () => this.closeLinkModal());
+    }
+    if (this.btnCloseLinkModal) {
+      this.btnCloseLinkModal.addEventListener("click", () => this.closeLinkModal());
+    }
+    if (this.btnUnlinkAction) {
+      this.btnUnlinkAction.addEventListener("click", () => this.executeUnlink());
+    }
+    if (this.btnApplyLinkAction) {
+      this.btnApplyLinkAction.addEventListener("click", () => this.executeLink());
+    }
+    if (this.linkModal) {
+      this.linkModal.addEventListener("click", (e) => {
+        if (e.target === this.linkModal) {
+          this.closeLinkModal();
         }
       });
     }
@@ -126,6 +160,7 @@ export class SelectionManager {
       this.app.grid.closeGridSheet();
     }
     this.closeGroupModal();
+    this.closeLinkModal();
     this.updateCardSelectionVisuals();
     this.app.renderCards();
     this.app.updateStatus();
@@ -140,23 +175,70 @@ export class SelectionManager {
     }
   }
 
+  // 選択中のメモと結ばれている未選択メモの判定
+  isLinkedToSelection(noteId) {
+    if (!this.app.state.isSelectMode) return false;
+    if (this.app.state.selectedNoteIds.size === 0) return false;
+    if (this.app.state.selectedNoteIds.has(noteId)) return false;
+
+    for (const selId of this.app.state.selectedNoteIds) {
+      const note = this.app.state.notes.find((n) => n.id === selId);
+      if (note && note.links && note.links.includes(noteId)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   updateCardSelectionVisuals() {
     const stage = document.getElementById("card-stage");
-    if (!stage) return;
-    const cards = stage.querySelectorAll(".note-card");
-    cards.forEach((card) => {
-      const id = card.dataset.id;
-      const isSel = this.app.state.isSelected(id);
-      if (isSel) {
-        card.classList.add("is-selected");
-      } else {
-        card.classList.remove("is-selected");
-      }
-      const hint = card.querySelector(".tap-hint");
-      if (hint && card.classList.contains("card-center")) {
-        hint.textContent = this.app.state.isSelectMode ? (isSel ? "✓ 選択中" : "タップで選択") : "タップで閲覧";
-      }
-    });
+    if (stage) {
+      const cards = stage.querySelectorAll(".note-card");
+      cards.forEach((card) => {
+        const id = card.dataset.id;
+        const isSel = this.app.state.isSelected(id);
+        const isLinked = this.isLinkedToSelection(id);
+
+        if (isSel) {
+          card.classList.add("is-selected");
+        } else {
+          card.classList.remove("is-selected");
+        }
+
+        if (isLinked) {
+          card.classList.add("is-linked-target");
+        } else {
+          card.classList.remove("is-linked-target");
+        }
+
+        const hint = card.querySelector(".tap-hint");
+        if (hint && card.classList.contains("card-center")) {
+          hint.textContent = this.app.state.isSelectMode ? (isSel ? "✓ 選択中" : "タップで選択") : "タップで閲覧";
+        }
+      });
+    }
+
+    // グリッドシート表示中であれば、タイルのis-linked-targetも同期
+    if (this.app.grid && this.app.grid.gridTilesStage) {
+      const tiles = this.app.grid.gridTilesStage.querySelectorAll(".grid-tile");
+      tiles.forEach((tile) => {
+        const id = tile.dataset.id;
+        const isSel = this.app.state.isSelected(id);
+        const isLinked = this.isLinkedToSelection(id);
+
+        if (isSel) {
+          tile.classList.add("is-selected");
+        } else {
+          tile.classList.remove("is-selected");
+        }
+
+        if (isLinked) {
+          tile.classList.add("is-linked-target");
+        } else {
+          tile.classList.remove("is-linked-target");
+        }
+      });
+    }
   }
 
   toggleSelectAll() {
@@ -257,9 +339,73 @@ export class SelectionManager {
     }
   }
 
+  async executeClearGroup() {
+    const selectedIds = Array.from(this.app.state.selectedNoteIds);
+    if (selectedIds.length === 0) return;
+
+    try {
+      await this.app.storage.updateNotesCategory(selectedIds, "");
+      this.app.state.notes.forEach((note) => {
+        if (selectedIds.includes(note.id)) {
+          note.category = "";
+          note.updated_at = new Date().toISOString();
+        }
+      });
+
+      this.closeGroupModal();
+      this.exitSelectMode();
+      this.app.showToast(`🏷️ ${selectedIds.length} 件のカテゴリを解除しました`);
+      if (this.app.sync) {
+        await this.app.sync.updateSyncIndicator();
+        this.app.sync.syncPushQueue({ isManual: false });
+      }
+    } catch (e) {
+      console.error("Clear group error:", e);
+      this.app.showToast("カテゴリの解除に失敗しました");
+    }
+  }
+
   // ---------------------------------------------------------------------------
-  // 🔗 相互リンク（全結合）
+  // 🔗 リンク管理（相互結び / リンク解除）モーダル
   // ---------------------------------------------------------------------------
+  openLinkModal() {
+    const selectedIds = Array.from(this.app.state.selectedNoteIds);
+    if (selectedIds.length < 2) return;
+
+    if (this.linkTargetCount) this.linkTargetCount.textContent = selectedIds.length;
+
+    // 選択されたメモ同士の間のリンク数を集計
+    let linkedPairsCount = 0;
+    for (let i = 0; i < selectedIds.length; i++) {
+      const note = this.app.state.notes.find((n) => n.id === selectedIds[i]);
+      if (note && note.links) {
+        for (let j = i + 1; j < selectedIds.length; j++) {
+          if (note.links.includes(selectedIds[j])) {
+            linkedPairsCount++;
+          }
+        }
+      }
+    }
+
+    if (this.linkStatusBadge) {
+      if (linkedPairsCount > 0) {
+        this.linkStatusBadge.className = "link-status-banner has-links";
+        this.linkStatusBadge.innerHTML = `<span>🔗</span><span>選択中のメモ同士に <strong>${linkedPairsCount} 組の結びつき</strong> があります。「リンクを解除」で解くことができます。</span>`;
+        if (this.btnUnlinkAction) this.btnUnlinkAction.disabled = false;
+      } else {
+        this.linkStatusBadge.className = "link-status-banner";
+        this.linkStatusBadge.innerHTML = `<span>✨</span><span>選択中のメモ同士にはまだリンクがありません。「相互リンクを結ぶ」で新しく結びつけます。</span>`;
+        if (this.btnUnlinkAction) this.btnUnlinkAction.disabled = true;
+      }
+    }
+
+    if (this.linkModal) this.linkModal.classList.add("is-active");
+  }
+
+  closeLinkModal() {
+    if (this.linkModal) this.linkModal.classList.remove("is-active");
+  }
+
   async executeLink() {
     const selectedIds = Array.from(this.app.state.selectedNoteIds);
     if (selectedIds.length < 2) return;
@@ -278,6 +424,7 @@ export class SelectionManager {
         }
       });
 
+      this.closeLinkModal();
       this.exitSelectMode();
       this.app.showToast(`🔗 ${selectedIds.length} 件のメモを相互に結びました`);
       if (this.app.sync) {
@@ -287,6 +434,33 @@ export class SelectionManager {
     } catch (e) {
       console.error("Link error:", e);
       this.app.showToast("リンクの付与に失敗しました");
+    }
+  }
+
+  async executeUnlink() {
+    const selectedIds = Array.from(this.app.state.selectedNoteIds);
+    if (selectedIds.length < 2) return;
+
+    try {
+      await this.app.storage.removeMutualLinks(selectedIds);
+      selectedIds.forEach((currId) => {
+        const note = this.app.state.notes.find((n) => n.id === currId);
+        if (note) {
+          note.links = (note.links || []).filter((id) => !selectedIds.includes(id));
+          note.updated_at = new Date().toISOString();
+        }
+      });
+
+      this.closeLinkModal();
+      this.exitSelectMode();
+      this.app.showToast(`🔗 ${selectedIds.length} 件のメモ間のリンクを解除しました`);
+      if (this.app.sync) {
+        await this.app.sync.updateSyncIndicator();
+        this.app.sync.syncPushQueue({ isManual: false });
+      }
+    } catch (e) {
+      console.error("Unlink error:", e);
+      this.app.showToast("リンクの解除に失敗しました");
     }
   }
 

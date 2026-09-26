@@ -419,6 +419,85 @@ export class PetasosStorage {
   }
 
   // ---------------------------------------------------------------------------
+  // 2つのメモの相互リンク解除（個別解除）
+  // ---------------------------------------------------------------------------
+  async removeMutualLink(noteId1, noteId2) {
+    return new Promise((resolve, reject) => {
+      const tx = this.db.transaction([STORE_NOTES, STORE_QUEUE], "readwrite");
+      const notesStore = tx.objectStore(STORE_NOTES);
+      const queueStore = tx.objectStore(STORE_QUEUE);
+      const updatedNotes = [];
+
+      const ids = [noteId1, noteId2];
+
+      ids.forEach((currId, idx) => {
+        const otherId = idx === 0 ? noteId2 : noteId1;
+        const req = notesStore.get(currId);
+        req.onsuccess = () => {
+          const note = req.result;
+          if (note) {
+            const currentLinks = (note.links || []).filter((id) => id !== otherId);
+            note.links = currentLinks;
+            note.updated_at = new Date().toISOString();
+            notesStore.put(note);
+            queueStore.add({
+              action: "update",
+              note_id: note.id,
+              title: note.title,
+              timestamp: new Date().toISOString(),
+              status: "pending"
+            });
+            updatedNotes.push(note);
+          }
+        };
+      });
+
+      tx.oncomplete = () => resolve(updatedNotes);
+      tx.onerror = (e) => reject(e.target.error);
+    });
+  }
+
+  // ---------------------------------------------------------------------------
+  // 複数メモ間の相互リンク一括解除
+  // ---------------------------------------------------------------------------
+  async removeMutualLinks(noteIds) {
+    return new Promise((resolve, reject) => {
+      const tx = this.db.transaction([STORE_NOTES, STORE_QUEUE], "readwrite");
+      const notesStore = tx.objectStore(STORE_NOTES);
+      const queueStore = tx.objectStore(STORE_QUEUE);
+      const updatedNotes = [];
+
+      const ids = Array.from(noteIds);
+      if (ids.length < 2) return resolve([]);
+
+      ids.forEach((currentId) => {
+        const req = notesStore.get(currentId);
+        req.onsuccess = () => {
+          const note = req.result;
+          if (note) {
+            // 選択された他のIDをリンクから除外
+            const currentLinks = (note.links || []).filter((id) => !ids.includes(id));
+            note.links = currentLinks;
+            note.updated_at = new Date().toISOString();
+            notesStore.put(note);
+            queueStore.add({
+              action: "update",
+              note_id: note.id,
+              title: note.title,
+              timestamp: new Date().toISOString(),
+              status: "pending"
+            });
+            updatedNotes.push(note);
+          }
+        };
+      });
+
+      tx.oncomplete = () => resolve(updatedNotes);
+      tx.onerror = (e) => reject(e.target.error);
+    });
+  }
+
+  // ---------------------------------------------------------------------------
   // 複数メモの結合（Join：新メモ作成 ＆ 元メモアーカイブ）
   // ---------------------------------------------------------------------------
   async joinNotes(newNote, originalNoteIds) {
