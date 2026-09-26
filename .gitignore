@@ -21,3 +21,6 @@ desktop.ini
 # Local environment / backups
 *.local
 petasos-backup-*.json
+
+# AI Assistant local configurations
+.agents/
