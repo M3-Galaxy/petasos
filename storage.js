@@ -184,6 +184,7 @@ export class PetasosStorage {
   // 同期キューの未処理件数を取得
   // ---------------------------------------------------------------------------
   async getPendingQueueCount() {
+    if (!this.db) return 0;
     return new Promise((resolve, reject) => {
       const tx = this.db.transaction([STORE_QUEUE], "readonly");
       const store = tx.objectStore(STORE_QUEUE);
@@ -198,6 +199,7 @@ export class PetasosStorage {
   // 全未処理キューアイテムを取得（GitHubプッシュ同期用）
   // ---------------------------------------------------------------------------
   async getPendingQueueItems() {
+    if (!this.db) return [];
     return new Promise((resolve, reject) => {
       const tx = this.db.transaction([STORE_QUEUE], "readonly");
       const store = tx.objectStore(STORE_QUEUE);

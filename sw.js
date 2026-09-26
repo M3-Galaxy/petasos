@@ -3,7 +3,7 @@
  * キャッシュバージョン管理により、オフライン動作とスムーズな更新を実現
  */
 
-const CACHE_NAME = "petasos-v1.0.1";
+const CACHE_NAME = "petasos-v1.1.2";
 
 // アプリの動作に必要な静的コアファイル群
 const CORE_ASSETS = [
@@ -17,6 +17,13 @@ const CORE_ASSETS = [
   "./state.js",
   "./storage.js",
   "./utils.js",
+  "./modules/deck-controller.js",
+  "./modules/grid-view.js",
+  "./modules/note-modal.js",
+  "./modules/pwa-manager.js",
+  "./modules/selection.js",
+  "./modules/settings-view.js",
+  "./modules/sync-manager.js",
   "./manifest.json",
   "./icon-192.png",
   "./icon-512.png",
