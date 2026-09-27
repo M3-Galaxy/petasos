@@ -92,37 +92,44 @@ class PhysicalCardDeckApp {
       this.btnToastUndo.addEventListener("click", () => this.triggerUndo());
     }
 
-    // 🐞 デバッグ：スクロール原点リセット＆画面診断
+    // 🐞 デバッグ：Viewport強制再計算（Heal Viewport）＆画面診断
     const btnDebugScroll = document.getElementById("btn-debug-scroll");
     if (btnDebugScroll) {
       btnDebugScroll.addEventListener("click", () => {
-        const bY = window.scrollY;
-        const bDoc = document.documentElement ? document.documentElement.scrollTop : 0;
-        const bBody = document.body ? document.body.scrollTop : 0;
-        const vH = window.visualViewport ? window.visualViewport.height : "N/A";
-        const vTop = window.visualViewport ? window.visualViewport.offsetTop : "N/A";
-        const inH = window.innerHeight;
-        const clH = document.documentElement ? document.documentElement.clientHeight : 0;
+        const bInH = window.innerHeight;
+        const bVisualH = window.visualViewport ? window.visualViewport.height : "N/A";
         const scH = window.screen ? window.screen.height : "N/A";
 
-        // スクロール原点リセットを実行
+        // 🌟 WebKitのViewport強制再計算ハック（Heal Viewport）を実行！
+        const appEl = document.getElementById("app");
+        if (appEl) {
+          appEl.style.display = "none";
+          void appEl.offsetHeight; // 同期リフローをブラウザに強制
+          appEl.style.display = "flex";
+        }
+        if (document.documentElement) {
+          document.documentElement.style.height = "100vh";
+        }
+        if (document.body) {
+          document.body.style.height = "100vh";
+        }
+
+        // スクロールも念のため原点へ
         window.scrollTo(0, 0);
-        if (document.documentElement) document.documentElement.scrollTop = 0;
-        if (document.body) document.body.scrollTop = 0;
 
-        const aY = window.scrollY;
-        const aDoc = document.documentElement ? document.documentElement.scrollTop : 0;
+        const aInH = window.innerHeight;
+        const aVisualH = window.visualViewport ? window.visualViewport.height : "N/A";
 
-        const report = `【デバッグ診断結果】\n` +
-          `■ スクロール(Y):\n` +
-          `  実行前: window=${bY}, doc=${bDoc}, body=${bBody}\n` +
-          `  実行後: window=${aY}, doc=${aDoc}\n` +
-          `■ ビューポート高さ:\n` +
-          `  innerHeight: ${inH}px\n` +
-          `  visualViewport: ${vH}px (top: ${vTop})\n` +
-          `  doc.clientHeight: ${clH}px\n` +
-          `  screen.height: ${scH}px\n\n` +
-          `※ OKを押した後、画面下端のズレが直るかご確認ください。`;
+        const report = `【Viewport強制再計算（Heal）結果】\n` +
+          `■ innerHeight（表示領域の高さ）:\n` +
+          `  実行前: ${bInH}px\n` +
+          `  実行後: ${aInH}px\n` +
+          `■ visualViewport:\n` +
+          `  実行前: ${bVisualH}px\n` +
+          `  実行後: ${aVisualH}px\n` +
+          `■ 端末画面の高さ (screen.height):\n` +
+          `  ${scH}px\n\n` +
+          `※ アラートを閉じた後、画面下端の黒い隙間が消えて広がったかご確認ください！`;
 
         console.log(report);
         alert(report);
