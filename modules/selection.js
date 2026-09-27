@@ -306,7 +306,14 @@ export class SelectionManager {
   }
 
   closeGroupModal() {
+    if (document.activeElement && typeof document.activeElement.blur === "function") {
+      document.activeElement.blur();
+    }
     if (this.groupModal) this.groupModal.classList.remove("is-active");
+    window.scrollTo(0, 0);
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+    }, 350);
   }
 
   async executeGroup() {

@@ -67,9 +67,9 @@ export class NoteModal {
       this.btnCommitEdit.addEventListener("click", () => this.commitEditor());
     }
 
-    // 📱 キーボードを閉じた際のスクロールズレ防止（下端切れ対策）
+    // 📱 キーボードを閉じた際のスクロールズレ防止（iOSキーボード退場アニメーション完了を待って復帰）
     const handleInputBlur = () => {
-      setTimeout(() => this.resetScrollPosition(), 100);
+      this.resetScrollPosition();
     };
     if (this.editTitle) this.editTitle.addEventListener("blur", handleInputBlur);
     if (this.editCategory) this.editCategory.addEventListener("blur", handleInputBlur);
@@ -563,14 +563,26 @@ export class NoteModal {
     }
   }
 
-  // 📱 スクロール位置のリセット（キーボード非表示後の下端見切れを防止）
+  // 📱 スクロール位置のリセット（キーボード非表示後の下端見切れを確実に防止）
   resetScrollPosition() {
+    // 1. 即時リセット
     window.scrollTo(0, 0);
     if (document.documentElement) document.documentElement.scrollTop = 0;
     if (document.body) document.body.scrollTop = 0;
+
+    // 2. iOSのキーボード完全格納（アニメーション所要時間: 約300ms〜350ms）後に再度確実にリセット
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+      if (document.documentElement) document.documentElement.scrollTop = 0;
+      if (document.body) document.body.scrollTop = 0;
+    }, 350);
   }
 
   closeModal() {
+    // キーボードが開いたままモーダルを閉じた場合に備えて強制退場
+    if (document.activeElement && typeof document.activeElement.blur === "function") {
+      document.activeElement.blur();
+    }
     if (this.noteModal) this.noteModal.classList.remove("is-active");
     if (this.categorySuggestions) this.categorySuggestions.style.display = "none";
     this.resetScrollPosition();
