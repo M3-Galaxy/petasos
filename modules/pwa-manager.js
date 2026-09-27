@@ -20,19 +20,60 @@ export class PwaManager {
   }
 
   /**
-   * 📱 iOS PWA におけるキーボード退場時のスクロール復元ガード
+   * 📱 iOS PWA における完全フルスクリーン化（Heal Viewport）＆スクロール復元ガード
    */
   setupIosViewportStabilizer() {
-    const forceReset = () => {
+    const healViewport = () => {
+      const appEl = document.getElementById("app");
+      if (appEl) {
+        appEl.style.display = "none";
+        void appEl.offsetHeight; // 同期リフローをブラウザに強制
+        appEl.style.display = "flex";
+      }
+      if (document.documentElement) {
+        document.documentElement.style.height = "100vh";
+      }
+      if (document.body) {
+        document.body.style.height = "100vh";
+      }
       window.scrollTo(0, 0);
       if (document.documentElement) document.documentElement.scrollTop = 0;
       if (document.body) document.body.scrollTop = 0;
     };
 
-    // キーボードを閉じた（focusout）瞬間の保険（iOSキーボード退場アニメーション完了後）
+    this.healViewport = healViewport;
+
+    // ① Webフォント（Noto Sans JP等）到着・レイアウト確定時
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => {
+        healViewport();
+      });
+    }
+
+    // ② ページ全体の読み込み完了時
+    window.addEventListener("load", () => {
+      healViewport();
+    });
+
+    // ③ 起動直後〜初期化完了までの波をカバーする安全タイマー
+    [100, 300, 700, 1500, 2200].forEach((delay) => {
+      setTimeout(healViewport, delay);
+    });
+
+    // ④ アプリ復帰時（バックグラウンドから戻った瞬間）
+    window.addEventListener("pageshow", () => {
+      healViewport();
+    });
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        healViewport();
+      }
+    });
+
+    // ⑤ キーボードを閉じた（focusout）瞬間（iOSキーボード退場アニメーション完了後）
     document.addEventListener("focusout", (e) => {
       if (e.target && ["INPUT", "TEXTAREA"].includes(e.target.tagName)) {
-        setTimeout(forceReset, 350);
+        setTimeout(healViewport, 350);
       }
     });
   }

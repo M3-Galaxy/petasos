@@ -73,6 +73,11 @@ class PhysicalCardDeckApp {
     this.updateStatus();
     await this.updateSyncIndicator();
 
+    // 📱 フルスクリーン補正（Heal Viewport）を実行して画面いっぱいに広げる
+    if (this.pwa && typeof this.pwa.healViewport === "function") {
+      this.pwa.healViewport();
+    }
+
     // 5. バックグラウンド自動同期
     const token = localStorage.getItem("petasos_github_token");
     const repo = localStorage.getItem("petasos_github_repo");
