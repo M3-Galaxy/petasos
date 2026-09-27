@@ -73,6 +73,11 @@ class PhysicalCardDeckApp {
     this.updateStatus();
     await this.updateSyncIndicator();
 
+    // 📱 多段階スクロールスタビライザーを実行（遅延レンダリング・フォント解決の縮み衝撃を吸収）
+    if (this.pwa && typeof this.pwa.triggerMultiStageReset === "function") {
+      this.pwa.triggerMultiStageReset();
+    }
+
     // 5. バックグラウンド自動同期
     const token = localStorage.getItem("petasos_github_token");
     const repo = localStorage.getItem("petasos_github_repo");

@@ -14,8 +14,65 @@ export class PwaManager {
   }
 
   init() {
+    this.setupIosViewportStabilizer();
     this.registerServiceWorker();
     this.bindEvents();
+  }
+
+  /**
+   * 📱 iOS PWA における初期ロード遅延・フォント適用・キーボード退場時の下端ズレを防止するスタビライザー
+   */
+  setupIosViewportStabilizer() {
+    // スクロール原点を強制的にゼロへ戻す関数
+    const forceReset = () => {
+      window.scrollTo(0, 0);
+      if (document.documentElement) document.documentElement.scrollTop = 0;
+      if (document.body) document.body.scrollTop = 0;
+    };
+
+    // 多段階タイマーで遅延したレイアウト確定（フォント・通信・セーフエリア確定の波）を迎え撃つ
+    const triggerMultiStageReset = () => {
+      forceReset();
+      // 0ms, 150ms, 350ms, 700ms, 1500ms, 2200ms, 3200ms
+      // 2秒前後に発生する「Webフォント到着・レイアウト確定の縮み」を確実にカバー
+      const stages = [150, 350, 700, 1500, 2200, 3200];
+      stages.forEach((delay) => {
+        setTimeout(forceReset, delay);
+      });
+    };
+
+    this.forceReset = forceReset;
+    this.triggerMultiStageReset = triggerMultiStageReset;
+
+    // ① Webフォント（Noto Sans JP等）の読み込み完了時（文字の伸縮・レイアウトシフト直後）
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => {
+        triggerMultiStageReset();
+      });
+    }
+
+    // ② ページリソース全体の読み込み完了時
+    window.addEventListener("load", () => {
+      triggerMultiStageReset();
+    });
+
+    // ③ アプリ復帰時（バックグラウンドからフォアグラウンドに戻った瞬間）
+    window.addEventListener("pageshow", () => {
+      triggerMultiStageReset();
+    });
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        triggerMultiStageReset();
+      }
+    });
+
+    // ④ キーボードを閉じた（focusout）瞬間（iOSキーボード退場アニメーション完了後）
+    document.addEventListener("focusout", (e) => {
+      if (e.target && ["INPUT", "TEXTAREA"].includes(e.target.tagName)) {
+        setTimeout(forceReset, 350);
+        setTimeout(forceReset, 500);
+      }
+    });
   }
 
   bindEvents() {
