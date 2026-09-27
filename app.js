@@ -97,6 +97,43 @@ class PhysicalCardDeckApp {
       this.btnToastUndo.addEventListener("click", () => this.triggerUndo());
     }
 
+    // 🐞 デバッグ：スクロール原点リセット＆画面診断
+    const btnDebugScroll = document.getElementById("btn-debug-scroll");
+    if (btnDebugScroll) {
+      btnDebugScroll.addEventListener("click", () => {
+        const bY = window.scrollY;
+        const bDoc = document.documentElement ? document.documentElement.scrollTop : 0;
+        const bBody = document.body ? document.body.scrollTop : 0;
+        const vH = window.visualViewport ? window.visualViewport.height : "N/A";
+        const vTop = window.visualViewport ? window.visualViewport.offsetTop : "N/A";
+        const inH = window.innerHeight;
+        const clH = document.documentElement ? document.documentElement.clientHeight : 0;
+        const scH = window.screen ? window.screen.height : "N/A";
+
+        // スクロール原点リセットを実行
+        window.scrollTo(0, 0);
+        if (document.documentElement) document.documentElement.scrollTop = 0;
+        if (document.body) document.body.scrollTop = 0;
+
+        const aY = window.scrollY;
+        const aDoc = document.documentElement ? document.documentElement.scrollTop : 0;
+
+        const report = `【デバッグ診断結果】\n` +
+          `■ スクロール(Y):\n` +
+          `  実行前: window=${bY}, doc=${bDoc}, body=${bBody}\n` +
+          `  実行後: window=${aY}, doc=${aDoc}\n` +
+          `■ ビューポート高さ:\n` +
+          `  innerHeight: ${inH}px\n` +
+          `  visualViewport: ${vH}px (top: ${vTop})\n` +
+          `  doc.clientHeight: ${clH}px\n` +
+          `  screen.height: ${scH}px\n\n` +
+          `※ OKを押した後、画面下端のズレが直るかご確認ください。`;
+
+        console.log(report);
+        alert(report);
+      });
+    }
+
     // グローバルキーボードショートカット
     window.addEventListener("keydown", (e) => {
       if (this.deck.isWarping) return;
