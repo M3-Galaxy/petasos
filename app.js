@@ -97,50 +97,6 @@ class PhysicalCardDeckApp {
       this.btnToastUndo.addEventListener("click", () => this.triggerUndo());
     }
 
-    // 🐞 デバッグ：Viewport強制再計算（Heal Viewport）＆画面診断
-    const btnDebugScroll = document.getElementById("btn-debug-scroll");
-    if (btnDebugScroll) {
-      btnDebugScroll.addEventListener("click", () => {
-        const bInH = window.innerHeight;
-        const bVisualH = window.visualViewport ? window.visualViewport.height : "N/A";
-        const scH = window.screen ? window.screen.height : "N/A";
-
-        // 🌟 WebKitのViewport強制再計算ハック（Heal Viewport）を実行！
-        const appEl = document.getElementById("app");
-        if (appEl) {
-          appEl.style.display = "none";
-          void appEl.offsetHeight; // 同期リフローをブラウザに強制
-          appEl.style.display = "flex";
-        }
-        if (document.documentElement) {
-          document.documentElement.style.height = "100vh";
-        }
-        if (document.body) {
-          document.body.style.height = "100vh";
-        }
-
-        // スクロールも念のため原点へ
-        window.scrollTo(0, 0);
-
-        const aInH = window.innerHeight;
-        const aVisualH = window.visualViewport ? window.visualViewport.height : "N/A";
-
-        const report = `【Viewport強制再計算（Heal）結果】\n` +
-          `■ innerHeight（表示領域の高さ）:\n` +
-          `  実行前: ${bInH}px\n` +
-          `  実行後: ${aInH}px\n` +
-          `■ visualViewport:\n` +
-          `  実行前: ${bVisualH}px\n` +
-          `  実行後: ${aVisualH}px\n` +
-          `■ 端末画面の高さ (screen.height):\n` +
-          `  ${scH}px\n\n` +
-          `※ アラートを閉じた後、画面下端の黒い隙間が消えて広がったかご確認ください！`;
-
-        console.log(report);
-        alert(report);
-      });
-    }
-
     // グローバルキーボードショートカット
     window.addEventListener("keydown", (e) => {
       if (this.deck.isWarping) return;
