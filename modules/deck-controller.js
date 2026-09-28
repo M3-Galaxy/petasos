@@ -4,6 +4,7 @@
  */
 
 import { escapeHtml, formatRelativeTime, renderMarkdown } from "../utils.js";
+import { ICONS } from "../icons.js";
 
 export class DeckController {
   /**
@@ -49,9 +50,11 @@ export class DeckController {
     this.longPressFired = false;
     this.longPressCard = null;
 
-    // 🌌 星のカルーセルシーク状態
+    // 🌌 星のカルーセルシーク状態（上部スクラバー方式）
     this.carouselOverlay = document.getElementById("link-carousel-overlay");
     this.carouselTrack = document.getElementById("carousel-track");
+    this.carouselPointerArrow = document.getElementById("carousel-pointer-arrow");
+    this.carouselOrbitRail = document.getElementById("carousel-orbit-rail");
     this.isCarouselSeeking = false;
     this.carouselItems = [];
     this.carouselOriginIndex = 0;
@@ -59,6 +62,7 @@ export class DeckController {
     this.carouselStartX = 0;
     this.carouselCardWidth = 290;
     this.carouselBaseOffset = 0;
+    this.scrubberSensitivity = 42; // 親指が42px動くごとに1つの星スロットへ移動
     this.lastVibratedIndex = -1;
   }
 
@@ -761,7 +765,7 @@ export class DeckController {
   }
 
   // ---------------------------------------------------------------------------
-  // 🌌 星のカルーセルシーク（連想星巡りホールドモード）
+  // 🌌 星のカルーセルシーク（上部スクラバー ＆ 惑星軌道レール）
   // ---------------------------------------------------------------------------
   startLinkCarouselSeek(clientX) {
     const current = this.app.state.getCurrentNote();
@@ -771,17 +775,13 @@ export class DeckController {
     if (sortedLinked.length === 0) return;
 
     // 左右の配置を通常デッキと一致させる：
-    // sortedLinked[0] は通常デッキの右カード（最新の星）
-    // sortedLinked[1] は通常デッキの左カード（2番目の星）、sortedLinked[2..] はさらに左へ
-    // 例: sortedLinked = [L0, L1, L2] の場合
-    // leftItems = [L2, L1] (L1が現在のカードのすぐ左に来るよう古い順に配置)
-    // rightItems = [L0] (L0が現在のカードのすぐ右に来る)
+    // sortedLinked[0] は右、sortedLinked[1] は左（すぐ左）、sortedLinked[2..] はさらに左へ
     const rightItems = sortedLinked.slice(0, 1);
     const leftItems = sortedLinked.slice(1).reverse();
 
-    // 実際の枚数のみ（現在のカード＋リンクされたカード）の配列を構築
+    // 実際の枚数のみ（現在のカード＋リンクされたカード）の配列
     this.carouselItems = [...leftItems, current, ...rightItems];
-    this.carouselOriginIndex = leftItems.length; // 現在のカードのインデックス
+    this.carouselOriginIndex = leftItems.length; // 現在のカード（惑星）のインデックス
     this.carouselActiveIndex = this.carouselOriginIndex;
     this.carouselStartX = clientX;
     this.isCarouselSeeking = true;
@@ -790,15 +790,22 @@ export class DeckController {
     // DOM要素の取得（未キャッシュ時対応）
     if (!this.carouselOverlay) this.carouselOverlay = document.getElementById("link-carousel-overlay");
     if (!this.carouselTrack) this.carouselTrack = document.getElementById("carousel-track");
+    if (!this.carouselPointerArrow) this.carouselPointerArrow = document.getElementById("carousel-pointer-arrow");
+    if (!this.carouselOrbitRail) this.carouselOrbitRail = document.getElementById("carousel-orbit-rail");
     if (!this.carouselOverlay || !this.carouselTrack) return;
 
-    // トラック内カードを生成
+    // 上部軌道レール（惑星アイコン ＆ ドット）の生成
+    this.renderScrubberRail();
+
+    // カードトラックの生成
     this.renderCarouselTrackCards();
 
     // オーバーレイをアクティブ化
     this.carouselOverlay.style.display = "flex";
     requestAnimationFrame(() => {
       if (this.carouselOverlay) this.carouselOverlay.classList.add("is-active");
+      // レール描画後にポインターの位置を惑星の真上に合わせる
+      this.updateScrubberPointerPosition(this.carouselOriginIndex);
     });
 
     // デッキ中央カードを少し縮小＆透過して背景に沈める
@@ -813,12 +820,59 @@ export class DeckController {
     if (this.leftCard) this.leftCard.style.opacity = "0";
   }
 
+  // 🪐 上部軌道レールの生成（現在地＝Planet、他＝ドット）
+  renderScrubberRail() {
+    if (!this.carouselOrbitRail) return;
+    this.carouselOrbitRail.innerHTML = "";
+
+    this.carouselItems.forEach((note, idx) => {
+      const isOrigin = idx === this.carouselOriginIndex;
+      const slot = document.createElement("div");
+      slot.className = `orbit-slot${isOrigin ? " is-origin is-active" : ""}`;
+      slot.dataset.index = idx;
+
+      if (isOrigin) {
+        // 🪐 Phosphor Planet アイコン
+        slot.innerHTML = `<div class="orbit-planet" title="現在地（離すと戻る）">${ICONS.planet || "🪐"}</div>`;
+      } else {
+        // ● ドット
+        slot.innerHTML = `<div class="orbit-dot" title="${escapeHtml(note.title)}"></div>`;
+      }
+      this.carouselOrbitRail.appendChild(slot);
+    });
+  }
+
+  // ポインター「▼」の位置をスロットの中心へ合わせる
+  updateScrubberPointerPosition(targetIndex) {
+    if (!this.carouselOrbitRail || !this.carouselPointerArrow) return;
+    const slots = this.carouselOrbitRail.querySelectorAll(".orbit-slot");
+    if (!slots || slots.length === 0 || targetIndex < 0 || targetIndex >= slots.length) return;
+
+    const targetSlot = slots[targetIndex];
+    // レール内でのスロットの中心位置
+    const slotCenter = targetSlot.offsetLeft + targetSlot.offsetWidth / 2;
+    const railWidth = this.carouselOrbitRail.offsetWidth;
+    // レール中心からの相対オフセット
+    const relativeX = slotCenter - railWidth / 2;
+
+    this.carouselPointerArrow.style.left = `calc(50% + ${relativeX}px)`;
+
+    // スロットのアクティブ状態の更新
+    slots.forEach((s, idx) => {
+      if (idx === targetIndex) {
+        s.classList.add("is-active");
+      } else {
+        s.classList.remove("is-active");
+      }
+    });
+  }
+
   renderCarouselTrackCards() {
     if (!this.carouselTrack) return;
     this.carouselTrack.innerHTML = "";
+    this.carouselTrack.style.transition = "none";
 
     const P = this.carouselCardWidth; // 290px
-    const N = this.carouselItems.length;
 
     this.carouselItems.forEach((note, idx) => {
       const isOrigin = idx === this.carouselOriginIndex;
@@ -857,60 +911,55 @@ export class DeckController {
       this.carouselTrack.appendChild(card);
     });
 
-    // 初期オフセット：現在のカード（originIndex）の中心が画面中央（left: 50%）にピタリと来る位置
+    // 初期オフセット：現在のカード（originIndex）が中央に来る位置
     this.carouselBaseOffset = -(this.carouselOriginIndex * P + P / 2);
     this.carouselTrack.style.transform = `translate3d(${this.carouselBaseOffset}px, -50%, 0)`;
   }
 
   updateLinkCarouselSeek(dx) {
-    if (!this.isCarouselSeeking || !this.carouselTrack) return;
+    if (!this.isCarouselSeeking) return;
 
     const N = this.carouselItems.length;
     if (N === 0) return;
 
     const P = this.carouselCardWidth;
 
-    // 端を超えたときの抵抗感（ラバーバンド）
-    // 指を左へ動かす(dx < 0) ➔ 右端カード(N - 1)へ向かう
-    // 指を右へ動かす(dx > 0) ➔ 左端カード(0)へ向かう
-    const minDx = (this.carouselOriginIndex - (N - 1)) * P;
-    const maxDx = this.carouselOriginIndex * P;
+    // 💡 カーソル側が動くダイレクトマッピング：
+    // 指を右へ動かす(dx > 0) ➔ 「▼」も右へスライド ➔ 右側の星（最新）へ
+    // 指を左へ動かす(dx < 0) ➔ 「▼」も左へスライド ➔ 左側の星へ
+    const step = Math.round(dx / this.scrubberSensitivity);
+    const targetIndex = Math.max(0, Math.min(N - 1, this.carouselOriginIndex + step));
 
-    let effectiveDx = dx;
-    if (dx < minDx) {
-      effectiveDx = minDx + (dx - minDx) * 0.25;
-    } else if (dx > maxDx) {
-      effectiveDx = maxDx + (dx - maxDx) * 0.25;
-    }
+    if (targetIndex !== this.carouselActiveIndex) {
+      this.carouselActiveIndex = targetIndex;
 
-    const currentOffset = this.carouselBaseOffset + effectiveDx;
-    this.carouselTrack.style.transform = `translate3d(${currentOffset}px, -50%, 0)`;
-
-    // 中心（「▼」の直下）にあるカードのインデックスを計算
-    const calculatedIndex = Math.round(this.carouselOriginIndex - (effectiveDx / P));
-    const activeIndex = Math.max(0, Math.min(N - 1, calculatedIndex));
-
-    if (activeIndex !== this.carouselActiveIndex) {
-      this.carouselActiveIndex = activeIndex;
-
-      // 触覚フィードバック（カードが切り替わるたびにコツッと鳴らす）
-      if (activeIndex !== this.lastVibratedIndex) {
-        this.lastVibratedIndex = activeIndex;
+      // 触覚フィードバック（星を渡るたびにコツッと鳴らす）
+      if (targetIndex !== this.lastVibratedIndex) {
+        this.lastVibratedIndex = targetIndex;
         if (navigator.vibrate) {
           try { navigator.vibrate(15); } catch (_) { }
         }
       }
 
-      // トラック内のカードの選択状態を更新
-      const allCards = this.carouselTrack.querySelectorAll(".carousel-card-item");
-      allCards.forEach((card) => {
-        const idx = parseInt(card.dataset.index, 10);
-        if (idx === activeIndex) {
-          card.classList.add("is-selected");
-        } else {
-          card.classList.remove("is-selected");
-        }
-      });
+      // 上部ポインターとスロットのハイライトを更新
+      this.updateScrubberPointerPosition(targetIndex);
+
+      // 中央のカードトラックをスムーズに切り替えスライド
+      const targetOffset = -(targetIndex * P + P / 2);
+      if (this.carouselTrack) {
+        this.carouselTrack.style.transition = "transform 0.22s cubic-bezier(0.16, 1, 0.3, 1)";
+        this.carouselTrack.style.transform = `translate3d(${targetOffset}px, -50%, 0)`;
+
+        const allCards = this.carouselTrack.querySelectorAll(".carousel-card-item");
+        allCards.forEach((card) => {
+          const idx = parseInt(card.dataset.index, 10);
+          if (idx === targetIndex) {
+            card.classList.add("is-selected");
+          } else {
+            card.classList.remove("is-selected");
+          }
+        });
+      }
     }
   }
 
@@ -926,6 +975,7 @@ export class DeckController {
         if (!this.isCarouselSeeking) {
           this.carouselOverlay.style.display = "none";
           if (this.carouselTrack) this.carouselTrack.innerHTML = "";
+          if (this.carouselOrbitRail) this.carouselOrbitRail.innerHTML = "";
         }
       }, 250);
     }
@@ -947,7 +997,7 @@ export class DeckController {
         try { navigator.vibrate([20, 50, 20]); } catch (_) { }
       }
     } else {
-      // 原点のまま離された（キャンセル） ➔ そのままデッキを復元
+      // 惑星（現在地）の上で離された（キャンセル） ➔ そのままデッキを復元
       this.renderCards();
       this.updateStatus();
     }

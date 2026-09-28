@@ -3752,7 +3752,7 @@ body.is-select-mode .footer-rocket-container {
 
 .carousel-hud {
   position: absolute;
-  top: calc(env(safe-area-inset-top, 0px) + 64px);
+  top: calc(env(safe-area-inset-top, 0px) + 54px);
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
@@ -3761,31 +3761,100 @@ body.is-select-mode .footer-rocket-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
-.carousel-pointer-wrap {
+/* 🪐 上部スクラバー（星の軌道レール ＆ ポインター） */
+.carousel-scrubber-wrap {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  padding-top: 14px;
 }
 
 .carousel-pointer-arrow {
-  font-size: 18px;
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 15px;
   color: var(--accent-cyan);
   line-height: 1;
   filter: drop-shadow(0 2px 8px var(--accent-cyan-glow));
-  animation: carousel-pointer-pulse 0.9s infinite alternate ease-in-out;
+  transition: left 0.1s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: left;
+  z-index: 5;
 }
 
-@keyframes carousel-pointer-pulse {
-  from {
-    transform: translateY(0);
-  }
-  to {
-    transform: translateY(4px);
-  }
+.carousel-orbit-rail {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius-pill);
+  padding: 4px 10px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* 軌道ライン */
+.carousel-orbit-rail::before {
+  content: "";
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  top: 50%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.25) 15%, rgba(255, 255, 255, 0.25) 85%, transparent 100%);
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+/* スロット（Planetまたはドット） */
+.orbit-slot {
+  position: relative;
+  z-index: 2;
+  width: 38px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 通常のドット */
+.orbit-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 🪐 惑星アイコン（現在地） */
+.orbit-planet {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.7);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 選択されたスロットのハイライト */
+.orbit-slot.is-active .orbit-dot {
+  background: var(--accent-cyan);
+  transform: scale(1.6);
+  box-shadow: 0 0 12px var(--accent-cyan), 0 0 4px #ffffff;
+}
+
+.orbit-slot.is-active .orbit-planet {
+  color: var(--accent-cyan);
+  transform: scale(1.22);
+  filter: drop-shadow(0 0 10px var(--accent-cyan-glow));
 }
 
 .carousel-hint-text {

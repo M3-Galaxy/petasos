@@ -250,10 +250,14 @@
     <div id="link-carousel-overlay" class="link-carousel-overlay" style="display: none;">
       <div class="carousel-backdrop"></div>
       <div class="carousel-hud">
-        <div class="carousel-pointer-wrap">
-          <div class="carousel-pointer-arrow">▼</div>
-          <div class="carousel-hint-text">指をスライドして星を選び、離して確定</div>
+        <!-- 🪐 上部スクラバー（星の軌道レール ＆ ポインター） -->
+        <div class="carousel-scrubber-wrap">
+          <div id="carousel-pointer-arrow" class="carousel-pointer-arrow">▼</div>
+          <div id="carousel-orbit-rail" class="carousel-orbit-rail">
+            <!-- JSで各スロット（Planetアイコン / ドット）を動的生成 -->
+          </div>
         </div>
+        <div id="carousel-hint-text" class="carousel-hint-text">指をスライドして星を選び、離して確定</div>
       </div>
       <div class="carousel-viewport">
         <div id="carousel-track" class="carousel-track">
