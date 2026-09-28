@@ -3718,4 +3718,203 @@ body.is-select-mode .footer-rocket-container {
   background: rgba(239, 68, 68, 0.12) !important;
   border-color: rgba(239, 68, 68, 0.45) !important;
   color: #dc2626 !important;
-}
+}
+
+/* ==========================================================================
+   🌌 星のカルーセルシーク（連想星巡りホールドモード）
+   ========================================================================== */
+.link-carousel-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.24s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.24s;
+}
+
+.link-carousel-overlay.is-active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.carousel-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.carousel-hud {
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0px) + 64px);
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  pointer-events: none;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.carousel-pointer-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.carousel-pointer-arrow {
+  font-size: 18px;
+  color: var(--accent-cyan);
+  line-height: 1;
+  filter: drop-shadow(0 2px 8px var(--accent-cyan-glow));
+  animation: carousel-pointer-pulse 0.9s infinite alternate ease-in-out;
+}
+
+@keyframes carousel-pointer-pulse {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(4px);
+  }
+}
+
+.carousel-hint-text {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 5px 14px;
+  border-radius: var(--radius-pill);
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.carousel-viewport {
+  position: relative;
+  width: 100vw;
+  height: calc(var(--card-height) + 20px);
+  max-height: 68vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+.carousel-track {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate3d(0, -50%, 0);
+  will-change: transform;
+}
+
+.carousel-card-item {
+  width: 270px;
+  height: 380px;
+  max-height: 58vh;
+  background: var(--bg-card);
+  border-radius: var(--radius-card);
+  border: var(--card-border);
+  box-shadow: var(--card-shadow);
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  transform: scale(0.85);
+  opacity: 0.45;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s, box-shadow 0.2s, border-color 0.2s;
+  will-change: transform, opacity;
+  margin: 0 10px;
+  user-select: none;
+  pointer-events: none;
+}
+
+.carousel-card-item.is-selected {
+  transform: scale(1.02);
+  opacity: 1;
+  border-color: var(--accent-cyan);
+  box-shadow:
+    0 20px 48px -8px rgba(0, 0, 0, 0.45),
+    0 0 0 2px var(--accent-cyan),
+    0 0 20px var(--accent-cyan-glow);
+}
+
+.carousel-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-faint);
+}
+
+.carousel-card-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.05);
+  font-size: 11px;
+}
+
+.carousel-card-item.is-origin .carousel-card-badge {
+  background: var(--accent-cyan-light);
+  color: var(--accent-cyan);
+  font-weight: 700;
+}
+
+.carousel-card-title {
+  font-family: var(--font-sans);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1.4;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.carousel-card-body {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-muted);
+  flex: 1;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+}
+
+.carousel-card-footer {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-faint);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  padding-top: 10px;
+}
+
