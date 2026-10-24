@@ -3,15 +3,15 @@
  * 設定モーダル（外観テーマ、データ管理、GitHub連携、About）の制御
  */
 
-// テーマごとのステータスバー・背景ベースカラー定義（iOS PWA / Safariのステータスバー連動用）
+// テーマごとのステータスバー・背景ベースカラー定義（画面上端のグラデーション外周色と一致させ段差を防止）
 export const THEME_BG_COLORS = {
-  "twilight": "#444d66",
-  "twilight-coral": "#76707d",
-  "mauve": "#121017",
-  "stardust": "#1a1e2b",
-  "sage": "#e6e8eb",
-  "olive-chalk": "#e6e8eb",
-  "daylight": "#f1f5f9"
+  "twilight": "#7f88a0",
+  "twilight-coral": "#6a6372",
+  "mauve": "#0e0c14",
+  "stardust": "#151926",
+  "sage": "#e4e6e9",
+  "olive-chalk": "#e4e6e9",
+  "daylight": "#e6ecf4"
 };
 
 export class SettingsView {
