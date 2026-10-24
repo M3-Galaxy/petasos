@@ -39,6 +39,7 @@
     0 0 0 1.5px rgba(255, 255, 255, 0.55),
     0 0 20px rgba(222, 219, 215, 0.2);
 
+  --status-bar-bg: #4d5772;
   --stars-opacity: 0.75;
 }
 
@@ -67,6 +68,7 @@ html[data-theme="daylight"] {
     0 25px 50px -12px rgba(15, 23, 42, 0.14),
     0 0 0 1px rgba(14, 165, 233, 0.12);
 
+  --status-bar-bg: #ffffff;
   --stars-opacity: 0;
 }
 
@@ -96,6 +98,7 @@ html[data-theme="twilight"] {
     0 0 0 1.5px rgba(255, 255, 255, 0.65),
     0 0 22px rgba(226, 226, 226, 0.25);
 
+  --status-bar-bg: #4d5772;
   --stars-opacity: 0.75;
 }
 
@@ -125,6 +128,7 @@ html[data-theme="twilight-coral"] {
     0 0 0 1.5px rgba(255, 255, 255, 0.55),
     0 0 20px rgba(223, 218, 213, 0.2);
 
+  --status-bar-bg: #9a94a2;
   --stars-opacity: 0.75;
 }
 
@@ -158,6 +162,7 @@ html[data-theme="mauve"] {
     0 0 0 1.5px rgba(212, 255, 63, 0.6),
     0 0 32px rgba(212, 255, 63, 0.32);
 
+  --status-bar-bg: #1e1927;
   --stars-opacity: 0.65;
 }
 
@@ -287,6 +292,7 @@ html[data-theme="stardust"] {
     0 0 0 1.5px rgba(255, 255, 255, 0.7),
     0 0 24px rgba(234, 236, 243, 0.25);
 
+  --status-bar-bg: #2d3347;
   --stars-opacity: 0.85;
 }
 
@@ -316,6 +322,7 @@ html[data-theme="olive-chalk"] {
     0 25px 52px -12px rgba(26, 28, 20, 0.16),
     0 0 0 1px rgba(111, 134, 4, 0.2);
 
+  --status-bar-bg: #ffffff;
   --stars-opacity: 0;
 }
 
@@ -1995,10 +2002,27 @@ body.is-select-mode .footer-rocket-container {
   }
 
   .app-header {
+    position: relative;
     padding-top: max(16px, calc(env(safe-area-inset-top, 0px) + 12px));
     padding-left: max(16px, env(safe-area-inset-left));
     padding-right: max(16px, env(safe-area-inset-right));
     padding-bottom: 8px;
+  }
+
+  /* 📱 iOS 18ステータスバー強制ブラー抑止用：テーマ連動の不透明保護帯 */
+  .app-header::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: calc(env(safe-area-inset-top, 44px) + 10px);
+    background: var(--status-bar-bg, var(--bg-primary));
+    mask-image: linear-gradient(to bottom, black 65%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 65%, transparent 100%);
+    pointer-events: none;
+    z-index: -1;
+    transition: background-color 0.4s ease;
   }
 
   .app-footer {
@@ -2048,13 +2072,15 @@ body.is-select-mode .footer-rocket-container {
     transform: translateY(0);
   }
 
-  /* ヘッダーのセーフエリア（ノッチ・ステータスバー）対応 */
+  /* ヘッダーのセーフエリア（ノッチ・ステータスバー）対応 ＆ 強制ブラー抑止 */
   .modal-header {
+    background: var(--bg-card);
     padding-top: max(14px, env(safe-area-inset-top));
     padding-left: max(16px, env(safe-area-inset-left));
     padding-right: max(16px, env(safe-area-inset-right));
     padding-bottom: 12px;
     flex-shrink: 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   }
 
   /* パネル余白とセーフエリア（ホームバー）対応 */
