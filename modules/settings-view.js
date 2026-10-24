@@ -3,6 +3,17 @@
  * 設定モーダル（外観テーマ、データ管理、GitHub連携、About）の制御
  */
 
+// テーマごとのステータスバー・背景ベースカラー定義（iOS PWA / Safariのステータスバー連動用）
+export const THEME_BG_COLORS = {
+  "twilight": "#444d66",
+  "twilight-coral": "#76707d",
+  "mauve": "#121017",
+  "stardust": "#1a1e2b",
+  "sage": "#e6e8eb",
+  "olive-chalk": "#e6e8eb",
+  "daylight": "#f1f5f9"
+};
+
 export class SettingsView {
   /**
    * @param {Object} app - PhysicalCardDeckApp インスタンス
@@ -140,6 +151,16 @@ export class SettingsView {
   setTheme(theme) {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("petasos_theme", theme);
+
+    // 📱 iOS PWA / Safari のステータスバー色および背景色をテーマにリアルタイム同期
+    const bgColor = THEME_BG_COLORS[theme] || THEME_BG_COLORS["twilight"];
+    const metaThemeColor = document.getElementById("meta-theme-color") || document.querySelector('meta[name="theme-color"]');
+    if (metaThemeColor) {
+      metaThemeColor.setAttribute("content", bgColor);
+    }
+    if (document.body) {
+      document.body.style.backgroundColor = bgColor;
+    }
 
     const themeCards = document.querySelectorAll(".theme-option-card[data-theme]");
     themeCards.forEach((card) => {

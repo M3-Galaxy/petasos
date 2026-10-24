@@ -20,22 +20,10 @@ export class PwaManager {
   }
 
   /**
-   * 📱 iOS PWA における完全フルスクリーン化（Heal Viewport）＆スクロール復元ガード
+   * 📱 iOS PWA におけるスクロール復元ガード & 原点安定化
    */
   setupIosViewportStabilizer() {
     const healViewport = () => {
-      const appEl = document.getElementById("app");
-      if (appEl) {
-        appEl.style.display = "none";
-        void appEl.offsetHeight; // 同期リフローをブラウザに強制
-        appEl.style.display = "flex";
-      }
-      if (document.documentElement) {
-        document.documentElement.style.height = "100vh";
-      }
-      if (document.body) {
-        document.body.style.height = "100vh";
-      }
       window.scrollTo(0, 0);
       if (document.documentElement) document.documentElement.scrollTop = 0;
       if (document.body) document.body.scrollTop = 0;
@@ -56,7 +44,7 @@ export class PwaManager {
     });
 
     // ③ 起動直後〜初期化完了までの波をカバーする安全タイマー
-    [100, 300, 700, 1500, 2200].forEach((delay) => {
+    [100, 300, 700].forEach((delay) => {
       setTimeout(healViewport, delay);
     });
 
