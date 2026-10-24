@@ -385,6 +385,20 @@ html[data-theme="olive-chalk"] .app-container::before {
   z-index: 30;
 }
 
+/* 📱 iOS 18 WebKit ステータスバー強制ブラー抑止用ハック（画面上端の判定をクリア） */
+.ios-blur-fix {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 12px;
+  z-index: 2147483647;
+  pointer-events: none;
+  background-color: #ffffff;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
 /* 微細な星屑のテクスチャ（トワイライトテーマ用） */
 .star-dust {
   position: absolute;
@@ -2002,27 +2016,10 @@ body.is-select-mode .footer-rocket-container {
   }
 
   .app-header {
-    position: relative;
     padding-top: max(16px, calc(env(safe-area-inset-top, 0px) + 12px));
     padding-left: max(16px, env(safe-area-inset-left));
     padding-right: max(16px, env(safe-area-inset-right));
     padding-bottom: 8px;
-  }
-
-  /* 📱 iOS 18ステータスバー強制ブラー抑止用：テーマ連動の不透明保護帯 */
-  .app-header::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: calc(env(safe-area-inset-top, 44px) + 10px);
-    background: var(--status-bar-bg, var(--bg-primary));
-    mask-image: linear-gradient(to bottom, black 65%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to bottom, black 65%, transparent 100%);
-    pointer-events: none;
-    z-index: -1;
-    transition: background-color 0.4s ease;
   }
 
   .app-footer {
