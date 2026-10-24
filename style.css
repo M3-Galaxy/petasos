@@ -331,10 +331,8 @@ html[data-theme="olive-chalk"] {
 
 html,
 body {
-  position: fixed;
-  inset: 0;
   width: 100%;
-  height: 100%;
+  height: 100vh;
   margin: 0;
   padding: 0;
   overflow: hidden;
@@ -351,9 +349,10 @@ body {
 /* アプリ全体のコンテナ */
 .app-container {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
   width: 100%;
-  height: 100%;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
