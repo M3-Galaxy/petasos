@@ -8,7 +8,6 @@
   <title>Petasos - 思考をカードのように扱うメモ</title>
   <meta name="description" content="身体性を伴うカードデッキと静かな思考の星空。紙とデジタルの美しい棲み分けを目指すローカルファーストメモ。">
   <!-- PWA & Mobile Meta Tags -->
-  <meta name="theme-color" id="meta-theme-color" content="#7f88a0">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Petasos">
@@ -22,13 +21,12 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
   <style>
     /* 📱 初期ロード中（Webフォント・CSS到着待ち）の白画面フラッシュおよび50pxズレを防止 */
     html, body {
       position: fixed;
       inset: 0;
-      background-color: #7f88a0;
+      background-color: var(--bg-primary, #444d66);
       margin: 0;
       padding: 0;
       width: 100%;
@@ -36,39 +34,14 @@
       overflow: hidden;
     }
   </style>
+  <link rel="stylesheet" href="style.css">
   <script>
-    // 📱 保存済みテーマの即時適用（ステータスバー色＆背景色のチラつき防止）
+    // 📱 保存済みテーマの即時適用（初期ロード時のチラつき防止）
     (function () {
       try {
-        var themeColors = {
-          "twilight": "#7f88a0",
-          "twilight-coral": "#6a6372",
-          "mauve": "#0e0c14",
-          "stardust": "#151926",
-          "sage": "#e4e6e9",
-          "olive-chalk": "#e4e6e9",
-          "daylight": "#e6ecf4"
-        };
-        var statusStyles = {
-          "twilight": "black-translucent",
-          "twilight-coral": "black-translucent",
-          "mauve": "black-translucent",
-          "stardust": "black-translucent",
-          "sage": "default",
-          "olive-chalk": "default",
-          "daylight": "default"
-        };
         var savedTheme = localStorage.getItem("petasos_theme") || "twilight";
         if (savedTheme) {
           document.documentElement.setAttribute("data-theme", savedTheme);
-          var bg = themeColors[savedTheme] || "#7f88a0";
-          var barStyle = statusStyles[savedTheme] || "black-translucent";
-          document.documentElement.style.backgroundColor = bg;
-          if (document.body) document.body.style.backgroundColor = bg;
-          var meta = document.getElementById("meta-theme-color");
-          if (meta) meta.setAttribute("content", bg);
-          var statusMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
-          if (statusMeta) statusMeta.setAttribute("content", barStyle);
         }
       } catch (e) { }
     })();

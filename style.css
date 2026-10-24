@@ -357,6 +357,26 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  background-color: var(--bg-primary);
+  background-image: var(--bg-gradient);
+}
+
+/* ライト系テーマ選択時、透過ステータスバーの白文字（時計・バッテリー）の視認性を守るソフトシェード */
+html[data-theme="daylight"] .app-container::before,
+html[data-theme="sage"] .app-container::before,
+html[data-theme="olive-chalk"] .app-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: calc(env(safe-area-inset-top, 44px) + 14px);
+  background: linear-gradient(to bottom,
+      rgba(15, 23, 42, 0.24) 0%,
+      rgba(15, 23, 42, 0.08) 65%,
+      transparent 100%);
+  pointer-events: none;
+  z-index: 30;
 }
 
 /* 微細な星屑のテクスチャ（トワイライトテーマ用） */
