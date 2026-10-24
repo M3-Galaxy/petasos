@@ -14,6 +14,53 @@ export const THEME_BG_COLORS = {
   "daylight": "#e6ecf4"
 };
 
+// 各テーマのステータスバースタイル（黒文字 default / 白文字 black-translucent）
+export const THEME_STATUS_BAR_STYLES = {
+  "twilight": "black-translucent",
+  "twilight-coral": "black-translucent",
+  "mauve": "black-translucent",
+  "stardust": "black-translucent",
+  "sage": "default",
+  "olive-chalk": "default",
+  "daylight": "default"
+};
+
+/**
+ * 📱 iOS Safari / PWA のステータスバー色および背景色を強制更新
+ * WebKitは既存のmeta[content]変更を無視することがあるため、metaタグの再生成（remove & append）を行う
+ */
+export function applyThemeMeta(theme) {
+  const bgColor = THEME_BG_COLORS[theme] || THEME_BG_COLORS["twilight"];
+  const barStyle = THEME_STATUS_BAR_STYLES[theme] || "black-translucent";
+
+  // 1. theme-color メタタグをDOM差し替えで再生成
+  const oldThemeMetas = document.querySelectorAll('meta[name="theme-color"]');
+  oldThemeMetas.forEach((el) => el.remove());
+
+  const newThemeMeta = document.createElement("meta");
+  newThemeMeta.name = "theme-color";
+  newThemeMeta.id = "meta-theme-color";
+  newThemeMeta.content = bgColor;
+  document.head.appendChild(newThemeMeta);
+
+  // 2. apple-mobile-web-app-status-bar-style メタタグもDOM差し替えで再生成
+  const oldStatusMetas = document.querySelectorAll('meta[name="apple-mobile-web-app-status-bar-style"]');
+  oldStatusMetas.forEach((el) => el.remove());
+
+  const newStatusMeta = document.createElement("meta");
+  newStatusMeta.name = "apple-mobile-web-app-status-bar-style";
+  newStatusMeta.content = barStyle;
+  document.head.appendChild(newStatusMeta);
+
+  // 3. html と body の背景色も直接更新
+  if (document.documentElement) {
+    document.documentElement.style.backgroundColor = bgColor;
+  }
+  if (document.body) {
+    document.body.style.backgroundColor = bgColor;
+  }
+}
+
 export class SettingsView {
   /**
    * @param {Object} app - PhysicalCardDeckApp インスタンス
@@ -152,15 +199,8 @@ export class SettingsView {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("petasos_theme", theme);
 
-    // 📱 iOS PWA / Safari のステータスバー色および背景色をテーマにリアルタイム同期
-    const bgColor = THEME_BG_COLORS[theme] || THEME_BG_COLORS["twilight"];
-    const metaThemeColor = document.getElementById("meta-theme-color") || document.querySelector('meta[name="theme-color"]');
-    if (metaThemeColor) {
-      metaThemeColor.setAttribute("content", bgColor);
-    }
-    if (document.body) {
-      document.body.style.backgroundColor = bgColor;
-    }
+    // 📱 iOS PWA / Safari のステータスバー色・文字色・背景色をテーマにリアルタイム同期
+    applyThemeMeta(theme);
 
     const themeCards = document.querySelectorAll(".theme-option-card[data-theme]");
     themeCards.forEach((card) => {

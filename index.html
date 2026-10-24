@@ -49,12 +49,26 @@
           "olive-chalk": "#e4e6e9",
           "daylight": "#e6ecf4"
         };
+        var statusStyles = {
+          "twilight": "black-translucent",
+          "twilight-coral": "black-translucent",
+          "mauve": "black-translucent",
+          "stardust": "black-translucent",
+          "sage": "default",
+          "olive-chalk": "default",
+          "daylight": "default"
+        };
         var savedTheme = localStorage.getItem("petasos_theme") || "twilight";
         if (savedTheme) {
           document.documentElement.setAttribute("data-theme", savedTheme);
           var bg = themeColors[savedTheme] || "#7f88a0";
+          var barStyle = statusStyles[savedTheme] || "black-translucent";
+          document.documentElement.style.backgroundColor = bg;
+          if (document.body) document.body.style.backgroundColor = bg;
           var meta = document.getElementById("meta-theme-color");
           if (meta) meta.setAttribute("content", bg);
+          var statusMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
+          if (statusMeta) statusMeta.setAttribute("content", barStyle);
         }
       } catch (e) { }
     })();
